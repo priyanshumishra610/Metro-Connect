@@ -2,17 +2,25 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { getPrimaryCommuteWithStations, type CommuteWithStations } from '@/services/commute';
+import { listIncomingRequests, type ConnectionWithProfile } from '@/services/connections';
 import { DEMO_STATIONS } from '@/services/demoData';
 import { discoverCommuters, type DiscoveredPerson } from '@/services/discovery';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import type { ServiceError } from '@/utils/serviceResult';
 
+/**
+ * Home is a dashboard, not a second Discover feed — it shows just today's
+ * single top match (a "spotlight," not a scrollable duplicate of the
+ * Discover list) plus whatever's genuinely dashboard-shaped: pending
+ * connection requests. Browsing everyone on the route lives in Discover.
+ */
 export function useHomeData() {
   const { userId, isDemoMode } = useAuth();
   const onboarding = useOnboardingStore();
 
   const [commute, setCommute] = useState<CommuteWithStations | null>(null);
-  const [people, setPeople] = useState<DiscoveredPerson[]>([]);
+  const [spotlight, setSpotlight] = useState<DiscoveredPerson | null>(null);
+  const [incomingRequests, setIncomingRequests] = useState<ConnectionWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ServiceError | null>(null);
 
@@ -48,9 +56,12 @@ export function useHomeData() {
       else setCommute(commuteResult.data);
     }
 
-    const peopleResult = await discoverCommuters(userId);
-    if (peopleResult.data) setPeople(peopleResult.data.slice(0, 5));
+    const [peopleResult, requestsResult] = await Promise.all([discoverCommuters(userId), listIncomingRequests(userId)]);
+
+    if (peopleResult.data) setSpotlight(peopleResult.data[0] ?? null);
     else if (peopleResult.error) setError(peopleResult.error);
+
+    setIncomingRequests(requestsResult.data ?? []);
 
     setLoading(false);
   }, [userId, isDemoMode, onboarding.homeStationName, onboarding.destinationStationName, onboarding.homeStationId, onboarding.destinationStationId, onboarding.startTime, onboarding.endTime, onboarding.frequency]);
@@ -59,5 +70,5 @@ export function useHomeData() {
     load();
   }, [load]);
 
-  return { commute, people, loading, error, reload: load };
+  return { commute, spotlight, incomingRequests, loading, error, reload: load };
 }

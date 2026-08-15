@@ -2,13 +2,14 @@ import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, View } from 'react-native';
 
+import { AnimatedListItem } from '@/components/ui/AnimatedListItem';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ScreenContainer } from '@/components/ui/ScreenContainer';
 import { Text } from '@/components/ui/Text';
-import { space } from '@/constants/spacing';
+import { space, tabBarClearance } from '@/constants/spacing';
 import { voice } from '@/constants/copy';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -58,7 +59,7 @@ export default function Connections() {
         <FlatList
           data={accepted}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: space.xxl, gap: space.sm }}
+          contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: tabBarClearance, gap: space.sm }}
           ListHeaderComponent={
             <View style={{ gap: space.sm, marginBottom: space.lg }}>
               {incoming.length > 0 && (
@@ -93,18 +94,20 @@ export default function Connections() {
               body="Once you connect with someone on your route, they'll show up here."
             />
           }
-          renderItem={({ item }) => (
-            <Pressable onPress={() => router.push(`/profile/${item.counterpart.id}`)} accessibilityRole="button">
-              <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
-                <Avatar name={item.counterpart.display_name ?? 'Commuter'} imageUrl={item.counterpart.avatar_url} verified={item.counterpart.is_commute_verified} />
-                <View style={{ flex: 1 }}>
-                  <Text variant="bodySemiBold">{item.counterpart.display_name ?? 'A fellow commuter'}</Text>
-                  {item.counterpart.profession && (
-                    <Text variant="small" color="textSecondary">{item.counterpart.profession}</Text>
-                  )}
-                </View>
-              </Card>
-            </Pressable>
+          renderItem={({ item, index }) => (
+            <AnimatedListItem index={index}>
+              <Pressable onPress={() => router.push(`/profile/${item.counterpart.id}`)} accessibilityRole="button">
+                <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+                  <Avatar name={item.counterpart.display_name ?? 'Commuter'} imageUrl={item.counterpart.avatar_url} verified={item.counterpart.is_commute_verified} />
+                  <View style={{ flex: 1 }}>
+                    <Text variant="bodySemiBold">{item.counterpart.display_name ?? 'A fellow commuter'}</Text>
+                    {item.counterpart.profession && (
+                      <Text variant="small" color="textSecondary">{item.counterpart.profession}</Text>
+                    )}
+                  </View>
+                </Card>
+              </Pressable>
+            </AnimatedListItem>
           )}
         />
       )}

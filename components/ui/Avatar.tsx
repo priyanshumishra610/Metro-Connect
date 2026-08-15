@@ -3,9 +3,10 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/ui/Text';
-import { colors, palette } from '@/constants/colors';
+import { colors } from '@/constants/colors';
 
-const RING_COLORS = [palette.blue, palette.cyan, palette.orange, palette.green, palette.pink, palette.yellow];
+/** Muted, meaning-bearing hues reused for fallback-avatar variety — deliberately not a rainbow, to stay inside the ink/paper world's restraint. */
+const RING_COLORS = [colors.interactive, colors.interestMatch, colors.founding, colors.success, colors.dating, colors.danger];
 
 function colorForSeed(seed: string) {
   let hash = 0;

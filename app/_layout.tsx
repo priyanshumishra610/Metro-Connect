@@ -1,23 +1,30 @@
 import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-} from '@expo-google-fonts/inter';
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_600SemiBold,
+  DMSans_700Bold,
+  DMSans_800ExtraBold,
+} from '@expo-google-fonts/dm-sans';
 import { Bangers_400Regular } from '@expo-google-fonts/bangers';
 import {
-  SpaceGrotesk_400Regular,
-  SpaceGrotesk_500Medium,
-  SpaceGrotesk_600SemiBold,
-  SpaceGrotesk_700Bold,
-} from '@expo-google-fonts/space-grotesk';
+  Fraunces_500Medium,
+  Fraunces_500Medium_Italic,
+  Fraunces_600SemiBold,
+  Fraunces_700Bold,
+} from '@expo-google-fonts/fraunces';
 import { useFonts } from 'expo-font';
 import * as Linking from 'expo-linking';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+// Ensures the in-app browser sheet used by Google OAuth (services/auth.ts)
+// reliably closes itself after redirecting back, instead of lingering.
+WebBrowser.maybeCompleteAuthSession();
 
 import { DemoModeBanner } from '@/components/system/DemoModeBanner';
 import { colors } from '@/constants/colors';
@@ -32,14 +39,15 @@ export default function RootLayout() {
   const authStatus = useAuthStore((s) => s.status);
 
   const [fontsLoaded] = useFonts({
-    SpaceGrotesk_400Regular,
-    SpaceGrotesk_500Medium,
-    SpaceGrotesk_600SemiBold,
-    SpaceGrotesk_700Bold,
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
+    Fraunces_500Medium,
+    Fraunces_500Medium_Italic,
+    Fraunces_600SemiBold,
+    Fraunces_700Bold,
+    DMSans_400Regular,
+    DMSans_500Medium,
+    DMSans_600SemiBold,
+    DMSans_700Bold,
+    DMSans_800ExtraBold,
     Bangers_400Regular,
   });
 
@@ -70,6 +78,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <SafeAreaProvider>
+        <StatusBar style="dark" />
         <DemoModeBanner />
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
           <Stack.Screen name="index" />

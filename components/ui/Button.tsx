@@ -23,6 +23,20 @@ export interface ButtonProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+const TEXT_COLOR: Record<ButtonVariant, 'textOnAccent' | 'textPrimary'> = {
+  primary: 'textOnAccent',
+  destructive: 'textOnAccent',
+  secondary: 'textPrimary',
+  ghost: 'textPrimary',
+};
+
+/**
+ * Primary/destructive are solid, direct, all-caps bold — the "speaking
+ * plainly" CTA convention this world is built on (brief context: v3
+ * redesign). Secondary/ghost stay ink-outlined or bare rather than filled,
+ * so the one accent color (never used for button fills) keeps its meaning
+ * elsewhere — links, tags, the metro visual.
+ */
 export function Button({
   label,
   onPress,
@@ -46,10 +60,10 @@ export function Button({
       disabled={isDisabled}
       hitSlop={8}
       onPressIn={() => {
-        scale.value = withSpring(0.97, springs.press);
+        scale.value = withSpring(0.96, springs.press);
       }}
       onPressOut={() => {
-        scale.value = withSpring(1, springs.press);
+        scale.value = withSpring(1, springs.momentum);
       }}
       onPress={() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -65,9 +79,9 @@ export function Button({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? colors.textOnAccent : colors.interactive} />
+        <ActivityIndicator color={TEXT_COLOR[variant] === 'textOnAccent' ? colors.textOnAccent : colors.textPrimary} />
       ) : (
-        <Text variant="bodySemiBold" color={variant === 'secondary' || variant === 'ghost' ? 'textPrimary' : 'textOnAccent'}>
+        <Text variant="cta" color={TEXT_COLOR[variant]}>
           {label}
         </Text>
       )}
@@ -85,12 +99,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   fullWidth: { alignSelf: 'stretch' },
-  disabled: { opacity: 0.45 },
+  disabled: { opacity: 0.4 },
 });
 
 const variantStyles: Record<ButtonVariant, ViewStyle> = {
-  primary: { backgroundColor: colors.interactive },
-  secondary: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong },
+  primary: { backgroundColor: colors.textPrimary },
+  secondary: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: colors.textPrimary },
   ghost: { backgroundColor: 'transparent' },
   destructive: { backgroundColor: colors.danger },
 };

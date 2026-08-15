@@ -9,7 +9,7 @@ import { ScreenContainer } from '@/components/ui/ScreenContainer';
 import { Text } from '@/components/ui/Text';
 import { VerificationBadge } from '@/components/ui/VerificationBadge';
 import { colors } from '@/constants/colors';
-import { space } from '@/constants/spacing';
+import { space, tabBarClearance } from '@/constants/spacing';
 import { useAuth } from '@/hooks/useAuth';
 
 const MENU_ITEMS: { icon: keyof typeof Feather.glyphMap; label: string; href: string }[] = [
@@ -26,7 +26,7 @@ export default function Profile() {
 
   return (
     <ScreenContainer edges={['top']} padded={false}>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: space.xxl }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: tabBarClearance }}>
         <View style={{ alignItems: 'center', paddingVertical: space.lg, gap: space.sm }}>
           <Avatar name={profile?.display_name ?? 'You'} imageUrl={profile?.avatar_url} size={84} verified={profile?.is_commute_verified} />
           <Text variant="h2">{profile?.display_name ?? 'You'}</Text>
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: space.sm,
     paddingVertical: 6,
-    backgroundColor: 'rgba(250, 204, 21, 0.1)',
+    backgroundColor: 'rgba(138, 92, 18, 0.1)',
     borderColor: colors.founding,
   },
   menuRow: {

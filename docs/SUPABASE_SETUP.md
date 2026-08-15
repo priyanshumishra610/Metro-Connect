@@ -68,13 +68,34 @@ connections, and chat all have real rows to work against.
 
 ## 5. Google Sign-In
 
-`services/auth.ts` exposes `signInWithGoogleIdToken()`, which does the
-Supabase half of the exchange. It needs a native Google OAuth client (e.g.
-`@react-native-google-signin/google-signin` or `expo-auth-session`) wired to
-real OAuth client IDs, which are per-project credentials this repo
-intentionally does not invent (brief §13, §82) — add that package, configure
-the client IDs in your Supabase Auth provider settings, and call this
-function with the ID token it returns.
+`services/auth.ts` → `signInWithGoogleOAuth()` and the "Continue with
+Google" button on the Welcome/Login/Signup screens are fully wired in code
+— what's left is a one-time credential setup in two dashboards. No native
+Google SDK is used (it's Supabase's hosted OAuth flow via
+`expo-web-browser`), so this works in Expo Go as well as a dev
+client/production build.
+
+**a. Google Cloud Console** (console.cloud.google.com → APIs & Services →
+Credentials):
+1. Create an OAuth 2.0 Client ID (type: **Web application** — yes, even
+   though this is a mobile app; Supabase is the actual OAuth client Google
+   talks to).
+2. Authorized redirect URI: `https://oofpefsqpjhsxemntrnn.supabase.co/auth/v1/callback`
+3. Note the generated Client ID and Client Secret.
+
+**b. Supabase Dashboard** (Authentication → Providers → Google):
+1. Enable Google, paste in the Client ID and Client Secret from above.
+2. Authentication → URL Configuration → Redirect URLs: add
+   `metroconnect://auth-callback` for dev-client/production builds. For
+   testing in Expo Go, also add a wildcard for the Expo proxy domain
+   (`exp://*`) — Expo Go's redirect URL changes with your dev session, so
+   this is the only way it stays whitelisted; a dev client or production
+   build doesn't have this problem since `metroconnect://auth-callback` is
+   fixed.
+
+Nothing else to change in the app — `makeRedirectUri({ path: 'auth-callback' })`
+in `services/auth.ts` already resolves to the right URL for whichever
+environment it's running in.
 
 ## 6. Account deletion — the missing half
 

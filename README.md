@@ -69,3 +69,11 @@ Intentionally left as documented setup steps rather than invented (brief
 deletion needs a service-role server endpoint; AdMob needs a native build
 (not Expo Go) and, for production, real ad unit IDs. All three are called
 out with exact next steps in `docs/SUPABASE_SETUP.md`.
+
+Android-only Truecaller one-tap sign-in is also fully wired (button, client
+service, and a Supabase Edge Function for server-side verification) — see
+[`docs/TRUECALLER_SETUP.md`](docs/TRUECALLER_SETUP.md) for the portal setup,
+two placeholder API endpoints to fill in, and Edge Function deploy steps.
+Note `patches/` is applied automatically via `postinstall` — it fixes a real
+bug in the Truecaller package's New Architecture support and must stay in
+place.

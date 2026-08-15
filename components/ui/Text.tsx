@@ -20,6 +20,7 @@ export function Text({ variant = 'body', color = 'textPrimary', style, ...rest }
           fontSize: token.fontSize,
           lineHeight: token.lineHeight,
           letterSpacing: token.letterSpacing,
+          textTransform: token.textTransform ?? 'none',
           color: colors[color],
         },
         style,

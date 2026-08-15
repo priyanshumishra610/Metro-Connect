@@ -5,7 +5,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withDelay, withSpring } fro
 import { Text } from '@/components/ui/Text';
 import { colors, type ColorRole } from '@/constants/colors';
 import { springs } from '@/constants/motion';
-import { radius, space } from '@/constants/spacing';
+import { radius, shadow, space } from '@/constants/spacing';
 
 export interface ComicLabelProps {
   text: string;
@@ -42,9 +42,9 @@ export function ComicLabel({ text, tone = 'founding', size = 'medium' }: ComicLa
   return (
     <Animated.View
       accessibilityRole="text"
-      style={[styles.wrapper, { backgroundColor: colors[tone] }, animatedStyle]}
+      style={[styles.wrapper, shadow.raised, { backgroundColor: colors[tone] }, animatedStyle]}
     >
-      <Text variant={variant} color="textInverse">
+      <Text variant={variant} color="textOnAccent">
         {text}
       </Text>
     </Animated.View>

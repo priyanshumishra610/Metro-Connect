@@ -6,89 +6,89 @@
 
 adaptive (React Native / Expo — see PRODUCT.md)
 
-## World
+## World — v3 (redesign, supersedes v2's glassmorphism)
 
-Modern graphic-novel energy crossed with metro signage and editorial
-discipline, on a premium dark canvas — not a children's comic app, not a
-generic AI-dark-mode-with-one-neon-accent template. The palette and type
-system were volunteered as a binding brand commitment in the original brief
-(recorded in PRODUCT.md) rather than selected through the open-ended
-direction process — this file records how that pinned system actually
-shipped in code, per `constants/colors.ts`, `constants/typography.ts`,
-`constants/spacing.ts`, `constants/motion.ts`.
+The user pointed at a reference (a Hinge brand-guidelines page) and asked
+for a "huge update." That page is a real product's trademarked brand
+system — its mascot, wordmark, and exact brand colors aren't Metro
+Connect's to use, and the original brief explicitly rules out copying any
+named product. What's genuinely reusable is the **craft technique**, which
+isn't proprietary: a black/white-dominant palette with color used only
+where it means something, a serif-display + grotesque-UI type pairing with
+inverse leading rhythms (tight headlines, airy body), bold all-caps direct
+CTAs, and flat modular restraint over decoration. That's what shipped here,
+executed with Metro Connect's own accent color, its own metro/illustration
+motifs, and no mascot.
 
-**Process note:** this build ran without the browser-based direction-picker
-ceremony (`concept-seed.mjs` / `serve-question.mjs`) — those tools render an
-HTML decision page in a system browser, which doesn't apply to a native
-Expo/React Native codebase with no dev server to preview against in this
-environment. The world itself was not invented; it was pinned. What DESIGN.md
-records here is the committed token system and component vocabulary as
-actually built, which is the finish-time job this file is meant to do
-regardless of how the direction was reached.
+This directly supersedes v2: full glassmorphism and "black/white dominant,
+color reserved for meaning" cannot coexist, so every `BlurView` was removed
+from the primitive layer (`Card`, `Button`, `Chip`, `TextField`, the tab
+bar) in favor of flat surfaces defined by a crisp border. The
+colorful `AmbientBackground` glow blobs are gone entirely — a flat paper
+background is the point now, not something to compete with.
 
 ## Color
 
-Strategy: **Restrained-to-Committed** — a near-black operating surface
-(`#050816` background / `#0B1020` surface / `#111827` card) carries almost
-every screen, with one saturated accent (`interactive` blue `#3B82F6`) doing
-the interactive work. The wider palette (cyan, yellow, orange, green, pink)
-is role-locked, not decorative: cyan = shared-interest relevance, blue =
-route relevance, yellow = Founding Commuter / achievement, green = verified
-status, pink = Dating Lobby *only* (never leaks into the core experience —
-this is a structural signal that dating is a separate space, not a UI
-accident). See `constants/colors.ts` for the full semantic-role table.
+Strategy: **Restrained** — ink (`#17161A`) and warm paper (`#FBF9F5`/
+`#FFFEFB`/`#FFFFFF`) cover the large majority of any screen. Exactly one
+saturated accent (`#2F5CFF`, a confident indigo-blue) carries interactive
+meaning — links, selected states, the metro-route visual, route-relevance
+tags — and is deliberately *never* used as a button fill, so it keeps
+reading as "this is meaningful" rather than becoming wallpaper. A small
+family of muted, nature-toned secondary hues (deep forest green for
+verified, muted teal for shared interests, ochre for Founding Commuter,
+muted aubergine for the Dating Lobby, brick red for danger) exists purely
+for semantic tagging, never decoration — see `constants/colors.ts`.
 
-Scene that forced dark: a commuter checking their phone on a crowded train,
-often at low-light hours (early morning, evening) — a bright UI would be
-both the wrong ambiance and a glare problem in that exact context.
+Primary/destructive buttons are solid **ink** or **danger**, not the accent
+— a deliberate choice: Hinge's own CTAs are black, not colored, and
+reserving the accent for data/relevance keeps two visual languages (action
+vs. meaning) distinct instead of collapsing into "everything is blue."
 
 ## Type
 
-Space Grotesk (headings) / Inter (body) / Bangers (comic accent only —
-never a default heading face; used in exactly one component,
-`ComicLabel`, gated to specific moments: a connection accepted, the
-"Let's fix that" onboarding turn). All three are self-hosted via
-`@expo-google-fonts/*` packages (real font files bundled with the app, not a
-system-font fallback standing in for a display face). Tracking is
-size-specific per token — negative on `display`/`h1`, near-zero on body,
-slightly positive on `caption`/`label` — see `constants/typography.ts`.
+Two families, inverse rhythms:
+- **Fraunces** (serif) carries headlines — 500/600/700 weight, tight
+  leading (~110%), slightly negative tracking. An italic cut
+  (`displayItalicAccent`) is available for editorial flourishes.
+- **DM Sans** (grotesque) carries everything functional — body copy at
+  ~140% leading with light positive tracking for readability, and a
+  dedicated `cta`/`ctaSmall` token (ExtraBold, uppercase, tracked) for the
+  "speaking plainly" button/label convention. Chosen specifically to not be
+  Inter, which the user asked to drop — Inter is the de facto default sans
+  in most generated UI, and this pairing works better without it anyway:
+  DM Sans reads warmer alongside Fraunces than Inter's more neutral,
+  technical character did.
+- **Bangers** is unchanged from v1/v2 — comic-accent moments only, gated to
+  `ComicLabel`, never a heading default.
 
 ## Materials & motion
 
-Cards are solid (`colors.card`/`cardElevated`) with a real offset+blur
-shadow (`constants/spacing.ts` → `shadow.card`/`raised`/`floating`) — no
-zero-offset glow, no glass/blur used as decoration. Reanimated springs
-follow the apple-design damping/response model: `springs.settle`
-(critically damped, default for anything that just appears) vs.
-`springs.momentum` (under-damped, reserved for gestures that already carry
-velocity — button press, comic-label pop after a match). `ComicLabel` and
-onboarding transitions respect `prefers-reduced-motion` via
-`AccessibilityInfo.isReduceMotionEnabled()`.
+Flat, bordered, precise. `shadow.*` (`constants/spacing.ts`) is now
+deliberately quiet — a 1-2px offset at low opacity — because the border
+does the definition work, not elevation. The tab bar is a normal in-flow
+bar with a crisp top border, not a floating blurred pill. Motion additions
+from v2 (staggered list entrances, tab-icon spring, button press
+scale+opacity, the connect-success `ZoomIn` badge) carry forward unchanged
+— none of that was glass-specific.
 
 ## Component vocabulary
 
-Icons are Feather (via `@expo/vector-icons`) throughout — one consistent
-stroke family, never emoji standing in for iconography. The signature visual
-is `components/metro/MetroRouteVisual.tsx`, an original SVG route diagram
-(animated train, pulsing stations) — deliberately generic, never a real
-transit authority's map or wordmark, per brief §47. Onboarding's crowded-car
-illustration (`CommuterCrowdIllustration.tsx`) is a second authored SVG
-asset rather than a stock photo or placeholder icon grid.
-
-Primitives live in `components/ui/`: `Text` (the only text component —
-every string sits on the type scale, no ad hoc `fontSize`), `Button`
-(press-in scale spring + haptic, four variants), `Card`, `Chip` (interests,
-route legs, relevance reasons — one pill vocabulary reused everywhere),
-`Avatar` (deterministic color ring + initials fallback since there are no
-real user photos yet), `VerificationBadge` (only ever renders from a real
-boolean — see PRODUCT.md's honesty principle), `EmptyState` (product-voice
-copy, never "No data found"), `ComicLabel` (the one Bangers moment).
+Feather icons, the original SVG metro-route visual and onboarding crowd
+illustration — both re-toned from a multi-color accent set down to
+ink + the single accent, matching the restrained palette. `Text` remains
+the only text component. `Avatar`'s fallback ring now cycles through the
+muted semantic colors (`interactive`, `interestMatch`, `founding`,
+`success`, `dating`, `danger`) instead of the old vivid rainbow — variety
+without breaking the 90% ink/paper rule.
 
 ## Known gaps / next pass
 
-- App icon, splash image, and Android adaptive-icon layers are still the
-  Expo template placeholders — need real Metro Connect brand assets before
-  a store submission.
-- No real user photography exists yet, so every avatar in both demo data
-  and a freshly seeded backend renders through the initials/color-ring
-  fallback rather than a photo.
+- App icon, splash image, and Android adaptive-icon layers are still Expo
+  template placeholders (background color now matches the paper tone, but
+  the artwork itself needs real Metro Connect branding).
+- No real user photography yet — every avatar still renders through the
+  initials/color-ring fallback.
+- This is the third visual direction in one session (dark comic → light
+  glass → editorial ink/paper). If this one lands, it's worth resisting
+  further full-system swings in favor of refining within it.

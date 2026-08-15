@@ -23,6 +23,10 @@ export const supabase = createClient(
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,
+      // PKCE stores its code_verifier in `storage` above and needs it back
+      // for exchangeCodeForSession() in services/auth.ts's Google OAuth
+      // flow — must stay in sync with that flow, not swapped independently.
+      flowType: 'pkce',
     },
   }
 );

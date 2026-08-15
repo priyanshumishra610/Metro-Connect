@@ -1,0 +1,58 @@
+diff --git a/node_modules/@dhana-cs/react-native-truecaller/lib/commonjs/TrueCallerModule.js b/node_modules/@dhana-cs/react-native-truecaller/lib/commonjs/TrueCallerModule.js
+index 15bfc7f..c31406f 100644
+--- a/node_modules/@dhana-cs/react-native-truecaller/lib/commonjs/TrueCallerModule.js
++++ b/node_modules/@dhana-cs/react-native-truecaller/lib/commonjs/TrueCallerModule.js
+@@ -10,9 +10,15 @@ const LINKING_ERROR = `The package 'react-native-truecaller-sdk' doesn't seem to
+   default: ''
+ }) + '- You rebuilt the app after installing the package\n' + '- You are not using Expo managed workflow\n';
+ 
+-// @ts-expect-error
+-const isTurboModuleEnabled = global.__turboModuleProxy != null;
+-const TrueCallerModule = isTurboModuleEnabled ? require('./NativeTrueCallerSDK').default : _reactNative.NativeModules.TrueCallerModule;
++// PATCHED (see patches/@dhana-cs+react-native-truecaller+*.patch): the
++// package's TurboModule branch requires './NativeTrueCallerSDK', a file
++// that does not exist anywhere in the published package, so it breaks
++// Metro's bundle resolution on any project with the New Architecture
++// enabled — the moment this file is genuinely reachable, not just
++// tree-shaken away. This module was never migrated to a real TurboModule,
++// so the classic-bridge path below is not a "fallback," it's the only
++// working implementation; always use it.
++const TrueCallerModule = _reactNative.NativeModules.TrueCallerModule;
+ const TrueCallerSDK = TrueCallerModule ? TrueCallerModule : new Proxy({}, {
+   get() {
+     throw new Error(LINKING_ERROR);
+diff --git a/node_modules/@dhana-cs/react-native-truecaller/lib/module/TrueCallerModule.js b/node_modules/@dhana-cs/react-native-truecaller/lib/module/TrueCallerModule.js
+index aea2b10..394701e 100644
+--- a/node_modules/@dhana-cs/react-native-truecaller/lib/module/TrueCallerModule.js
++++ b/node_modules/@dhana-cs/react-native-truecaller/lib/module/TrueCallerModule.js
+@@ -4,9 +4,8 @@ const LINKING_ERROR = `The package 'react-native-truecaller-sdk' doesn't seem to
+   default: ''
+ }) + '- You rebuilt the app after installing the package\n' + '- You are not using Expo managed workflow\n';
+ 
+-// @ts-expect-error
+-const isTurboModuleEnabled = global.__turboModuleProxy != null;
+-const TrueCallerModule = isTurboModuleEnabled ? require('./NativeTrueCallerSDK').default : NativeModules.TrueCallerModule;
++// PATCHED — see lib/commonjs/TrueCallerModule.js for why.
++const TrueCallerModule = NativeModules.TrueCallerModule;
+ const TrueCallerSDK = TrueCallerModule ? TrueCallerModule : new Proxy({}, {
+   get() {
+     throw new Error(LINKING_ERROR);
+diff --git a/node_modules/@dhana-cs/react-native-truecaller/src/TrueCallerModule.ts b/node_modules/@dhana-cs/react-native-truecaller/src/TrueCallerModule.ts
+index 1fbc259..47b7aec 100644
+--- a/node_modules/@dhana-cs/react-native-truecaller/src/TrueCallerModule.ts
++++ b/node_modules/@dhana-cs/react-native-truecaller/src/TrueCallerModule.ts
+@@ -12,12 +12,8 @@ const LINKING_ERROR =
+   '- You rebuilt the app after installing the package\n' +
+   '- You are not using Expo managed workflow\n';
+ 
+-// @ts-expect-error
+-const isTurboModuleEnabled = global.__turboModuleProxy != null;
+-
+-const TrueCallerModule = isTurboModuleEnabled
+-  ? require('./NativeTrueCallerSDK').default
+-  : NativeModules.TrueCallerModule;
++// PATCHED — see lib/commonjs/TrueCallerModule.js for why.
++const TrueCallerModule = NativeModules.TrueCallerModule;
+ 
+ export interface TrueCallerSpec {
+   // SDK Initialization

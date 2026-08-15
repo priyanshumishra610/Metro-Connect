@@ -1,18 +1,21 @@
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import { AdBanner } from '@/components/ads/AdBanner';
 import { MetroRouteVisual } from '@/components/metro/MetroRouteVisual';
 import { PersonCard } from '@/components/discovery/PersonCard';
+import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { InlineError } from '@/components/ui/InlineError';
 import { ScreenContainer } from '@/components/ui/ScreenContainer';
 import { Text } from '@/components/ui/Text';
+import { colors } from '@/constants/colors';
 import { voice } from '@/constants/copy';
-import { space } from '@/constants/spacing';
+import { space, tabBarClearance } from '@/constants/spacing';
 import { useAuth } from '@/hooks/useAuth';
 import { useHomeData } from '@/hooks/useHomeData';
 import { requestConnection } from '@/services/connections';
@@ -21,20 +24,16 @@ import { formatFrequency, formatTime, greetingForNow } from '@/utils/format';
 export default function Home() {
   const router = useRouter();
   const { profile, userId } = useAuth();
-  const { commute, people, loading, error, reload } = useHomeData();
-  const [connectingIds, setConnectingIds] = useState<Set<string>>(new Set());
-  const [connectedIds, setConnectedIds] = useState<Set<string>>(new Set());
+  const { commute, spotlight, incomingRequests, loading, error, reload } = useHomeData();
+  const [connecting, setConnecting] = useState(false);
+  const [connected, setConnected] = useState(false);
 
-  const onConnect = async (personId: string) => {
-    if (!userId) return;
-    setConnectingIds((prev) => new Set(prev).add(personId));
-    const result = await requestConnection(userId, personId);
-    setConnectingIds((prev) => {
-      const next = new Set(prev);
-      next.delete(personId);
-      return next;
-    });
-    if (!result.error) setConnectedIds((prev) => new Set(prev).add(personId));
+  const onConnect = async () => {
+    if (!userId || !spotlight) return;
+    setConnecting(true);
+    const result = await requestConnection(userId, spotlight.userId);
+    setConnecting(false);
+    if (!result.error) setConnected(true);
   };
 
   const firstName = profile?.display_name?.split(' ')[0];
@@ -42,8 +41,8 @@ export default function Home() {
   return (
     <ScreenContainer edges={['top']} padded={false}>
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: space.xxl }}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={reload} tintColor="#ffffff" />}
+        contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: tabBarClearance }}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={reload} tintColor={colors.interactive} />}
       >
         <View style={{ paddingTop: space.sm, marginBottom: space.lg }}>
           <Text variant="body" color="textSecondary">{greetingForNow()}</Text>
@@ -51,7 +50,7 @@ export default function Home() {
         </View>
 
         {commute ? (
-          <Card elevated style={{ marginBottom: space.xl, gap: space.md, alignItems: 'center' }}>
+          <Card elevated style={{ marginBottom: space.lg, gap: space.md, alignItems: 'center' }}>
             <View style={{ alignSelf: 'flex-start' }}>
               <Text variant="label" color="textSecondary">YOUR COMMUTE</Text>
               <Text variant="h2">
@@ -72,9 +71,26 @@ export default function Home() {
 
         {error && <InlineError message={error.message} />}
 
-        <Text variant="h3" style={{ marginBottom: space.md }}>People on your route</Text>
+        {incomingRequests.length > 0 && (
+          <Pressable onPress={() => router.push('/(tabs)/connections')} accessibilityRole="button">
+            <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm, marginBottom: space.lg }}>
+              <Avatar name={incomingRequests[0].counterpart.display_name ?? 'Commuter'} imageUrl={incomingRequests[0].counterpart.avatar_url} size={40} />
+              <View style={{ flex: 1 }}>
+                <Text variant="bodySemiBold">
+                  {incomingRequests.length === 1
+                    ? `${incomingRequests[0].counterpart.display_name ?? 'Someone'} wants to connect`
+                    : `${incomingRequests.length} connection requests`}
+                </Text>
+                <Text variant="small" color="textSecondary">From people on your route</Text>
+              </View>
+              <Feather name="chevron-right" size={18} color={colors.textSecondary} />
+            </Card>
+          </Pressable>
+        )}
 
-        {!loading && people.length === 0 ? (
+        <Text variant="h3" style={{ marginBottom: space.md }}>Today's top match</Text>
+
+        {!loading && !spotlight ? (
           <EmptyState
             icon="users"
             title={voice.coldStartTitle}
@@ -82,21 +98,17 @@ export default function Home() {
             actionLabel="Invite people from your route"
             onAction={() => router.push('/settings')}
           />
-        ) : (
-          <View style={{ gap: space.md }}>
-            {people.map((person) => (
-              <PersonCard
-                key={person.userId}
-                person={person}
-                connectLabel={connectedIds.has(person.userId) ? 'Request sent' : 'Connect'}
-                connectDisabled={connectingIds.has(person.userId) || connectedIds.has(person.userId)}
-                onConnect={() => onConnect(person.userId)}
-              />
-            ))}
-          </View>
-        )}
+        ) : spotlight ? (
+          <PersonCard
+            person={spotlight}
+            connectLabel={connected ? 'Request sent' : 'Connect'}
+            connectDisabled={connecting || connected}
+            connected={connected}
+            onConnect={onConnect}
+          />
+        ) : null}
 
-        {people.length > 0 && (
+        {spotlight && (
           <View style={{ alignItems: 'flex-start', marginTop: space.md }}>
             <Chip
               label="See everyone on your route"

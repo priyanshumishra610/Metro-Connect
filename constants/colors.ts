@@ -1,65 +1,50 @@
 /**
- * Metro Connect color system.
- * Background/surface/accent values are pinned by the product brief — do not
- * reinterpret them. `danger` is the one derived addition (Tailwind red-500),
- * chosen to sit in the same numeric family as the pinned accents.
+ * Metro Connect color system — v3, an editorial ink-on-paper world:
+ * black/white-and-warm-neutral dominant (~90% of any given screen, per the
+ * craft principle this direction is built on), with exactly one saturated
+ * accent doing the interactive work and a small family of muted, nature-
+ * toned secondary hues reserved for meaning (verification, route/interest
+ * tags, the Dating Lobby) rather than decoration. No color exists here
+ * "because it's pretty" — every hue below has a job.
  */
 export const palette = {
-  background: '#050816',
-  surface: '#0B1020',
-  card: '#111827',
-  border: '#1E293B',
-
-  blue: '#3B82F6',
-  cyan: '#38BDF8',
-  yellow: '#FACC15',
-  orange: '#FB923C',
-  green: '#22C55E',
-  pink: '#EC4899',
-  red: '#EF4444',
-
-  white: '#F8FAFC',
-  muted: '#94A3B8',
-  black: '#020409',
+  ink: '#17161A',
+  paper: '#FFFEFB',
+  accent: '#2F5CFF',
 } as const;
 
-/**
- * Semantic roles. Screens should reach for these, not raw palette values —
- * it keeps color intentional rather than decorative (brief §9).
- */
 export const colors = {
-  bg: palette.background,
-  surface: palette.surface,
-  card: palette.card,
-  cardElevated: '#161F32',
-  border: palette.border,
-  borderStrong: '#2A3A55',
+  bg: '#FBF9F5',
+  surface: '#FFFEFB',
+  card: '#FFFFFF',
+  cardElevated: '#FFFFFF',
+  border: 'rgba(23, 22, 26, 0.12)',
+  borderStrong: 'rgba(23, 22, 26, 0.24)',
 
-  textPrimary: palette.white,
-  textSecondary: palette.muted,
-  textOnAccent: palette.white,
-  textInverse: palette.black,
+  textPrimary: '#17161A',
+  textSecondary: '#6E6B66',
+  textOnAccent: '#FFFEFB',
 
-  // Interactive / structural
-  interactive: palette.blue,
-  interactivePressed: '#2563EB',
-  focusRing: palette.cyan,
+  // Interactive — one confident accent, not a rainbow.
+  interactive: '#2F5CFF',
+  interactivePressed: '#2444D1',
+  focusRing: '#2F5CFF',
 
-  // Status & meaning — used sparingly and always with a label, never color alone
-  success: palette.green,
-  warning: palette.orange,
-  danger: palette.red,
-  info: palette.cyan,
+  // Status & meaning — muted, nature-toned, used sparingly and always with a label.
+  success: '#2F6B4F',
+  warning: '#9C5A1E',
+  danger: '#B3261E',
+  info: '#2B6B6B',
 
   // Product-specific accent roles
-  routeMatch: palette.blue, // commute/route relevance
-  interestMatch: palette.cyan, // shared-interest relevance
-  founding: palette.yellow, // Founding Commuter / achievements
-  dating: palette.pink, // Dating Lobby only — never used in the core experience
+  routeMatch: '#2F5CFF', // commute/route relevance
+  interestMatch: '#2B6B6B', // shared-interest relevance (muted teal)
+  founding: '#8A5C12', // Founding Commuter / achievements (ochre)
+  dating: '#6B3B5E', // Dating Lobby only — muted aubergine, never used in the core experience
 
-  overlay: 'rgba(2, 4, 9, 0.72)',
-  overlaySoft: 'rgba(2, 4, 9, 0.4)',
-  hairline: 'rgba(248, 250, 252, 0.08)',
+  overlay: 'rgba(23, 22, 26, 0.55)',
+  overlaySoft: 'rgba(23, 22, 26, 0.28)',
+  hairline: 'rgba(23, 22, 26, 0.1)',
 } as const;
 
 export type ColorRole = keyof typeof colors;

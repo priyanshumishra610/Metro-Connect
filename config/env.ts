@@ -25,3 +25,13 @@ export const ADMOB = {
   interstitialId: process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID ?? '',
   rewardedId: process.env.EXPO_PUBLIC_ADMOB_REWARDED_ID ?? '',
 };
+
+/**
+ * The Truecaller Client ID is embedded in the built app (it's how
+ * Truecaller's app recognizes the caller, analogous to an OAuth client ID)
+ * — not a secret. The Client SECRET used to exchange the auth code for a
+ * token is a real secret and lives only in the Supabase Edge Function
+ * (supabase/functions/truecaller-verify), never here.
+ */
+export const TRUECALLER_CLIENT_ID = process.env.EXPO_PUBLIC_TRUECALLER_CLIENT_ID ?? '';
+export const HAS_TRUECALLER_CONFIG = Boolean(TRUECALLER_CLIENT_ID);

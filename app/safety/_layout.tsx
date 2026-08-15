@@ -10,7 +10,7 @@ export default function SafetyLayout() {
       screenOptions={{
         headerStyle: { backgroundColor: colors.bg },
         headerTintColor: colors.textPrimary,
-        headerTitleStyle: { fontFamily: fontFamily.headingSemiBold, fontSize: 17 },
+        headerTitleStyle: { fontFamily: fontFamily.displaySemiBold, fontSize: 17 },
         headerShadowVisible: false,
       }}
     >

@@ -13,20 +13,17 @@ export interface TextFieldProps extends TextInputProps {
 
 export function TextField({ label, error, style, onFocus, onBlur, ...rest }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
+  const borderColor = error ? colors.danger : focused ? colors.interactive : colors.border;
 
   return (
     <View style={styles.group}>
       {label && (
         <Text variant="label" color="textSecondary" style={styles.label}>
-          {label.toUpperCase()}
+          {label}
         </Text>
       )}
       <TextInput
-        style={[
-          styles.input,
-          { borderColor: error ? colors.danger : focused ? colors.interactive : colors.border },
-          style,
-        ]}
+        style={[styles.input, { borderColor, borderWidth: focused || error ? 1.5 : 1 }, style]}
         placeholderTextColor={colors.textSecondary}
         onFocus={(e) => {
           setFocused(true);
@@ -50,10 +47,9 @@ export function TextField({ label, error, style, onFocus, onBlur, ...rest }: Tex
 
 const styles = StyleSheet.create({
   group: { marginBottom: space.md },
-  label: { marginBottom: space.xs, letterSpacing: 0.6 },
+  label: { marginBottom: space.xs },
   input: {
     minHeight: 48,
-    borderWidth: 1.5,
     borderRadius: radius.md,
     paddingHorizontal: space.md,
     color: colors.textPrimary,

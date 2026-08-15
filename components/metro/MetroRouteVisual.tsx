@@ -4,7 +4,7 @@ import Animated, { useAnimatedProps, useSharedValue, withRepeat, withTiming, Eas
 import Svg, { Circle, Defs, Line, LinearGradient, Stop } from 'react-native-svg';
 
 import { Text } from '@/components/ui/Text';
-import { colors, palette } from '@/constants/colors';
+import { colors } from '@/constants/colors';
 import { space } from '@/constants/spacing';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -22,7 +22,7 @@ export interface MetroRouteVisualProps {
  * or wordmark). A small train travels the line continuously; each station
  * has a soft pulse to read as "alive" without being distracting.
  */
-export function MetroRouteVisual({ homeLabel, destinationLabel, lineColor = palette.blue, height = 96 }: MetroRouteVisualProps) {
+export function MetroRouteVisual({ homeLabel, destinationLabel, lineColor = colors.interactive, height = 96 }: MetroRouteVisualProps) {
   const { width: screenWidth } = useWindowDimensions();
   const width = Math.min(screenWidth - space.md * 2, 520);
   const trackY = height * 0.42;
@@ -67,9 +67,9 @@ export function MetroRouteVisual({ homeLabel, destinationLabel, lineColor = pale
         <Circle cx={inset} cy={trackY} r={7} fill={colors.bg} stroke={lineColor} strokeWidth={3} />
         <AnimatedCircle cx={inset} cy={trackY} fill="none" stroke={lineColor} strokeWidth={2} animatedProps={pulseProps} />
 
-        <Circle cx={width - inset} cy={trackY} r={7} fill={colors.bg} stroke={palette.cyan} strokeWidth={3} />
+        <Circle cx={width - inset} cy={trackY} r={7} fill={colors.bg} stroke={colors.interestMatch} strokeWidth={3} />
 
-        <AnimatedCircle cy={trackY} r={5} fill={palette.yellow} animatedProps={trainProps} />
+        <AnimatedCircle cy={trackY} r={5} fill={colors.interactive} animatedProps={trainProps} />
       </Svg>
 
       <View style={[styles.labelRow, { top: trackY + 16 }]}>

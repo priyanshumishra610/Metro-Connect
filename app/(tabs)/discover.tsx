@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ScreenContainer } from '@/components/ui/ScreenContainer';
 import { Text } from '@/components/ui/Text';
 import { relevanceReasons, voice } from '@/constants/copy';
-import { space } from '@/constants/spacing';
+import { space, tabBarClearance } from '@/constants/spacing';
 import { useAuth } from '@/hooks/useAuth';
 import { listCommunitiesForCity, type CommunityWithCount } from '@/services/communities';
 import { requestConnection } from '@/services/connections';
@@ -89,7 +89,7 @@ export default function Discover() {
         <FlatList
           data={communities}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: space.xxl, gap: space.sm }}
+          contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: tabBarClearance, gap: space.sm }}
           ListEmptyComponent={<EmptyState icon="hash" title="No circles here yet." body="Interest circles form as more commuters on your route join." />}
           renderItem={({ item }) => (
             <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
@@ -106,16 +106,18 @@ export default function Discover() {
         <FlatList
           data={people}
           keyExtractor={(item) => item.userId}
-          contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: space.xxl, gap: space.md }}
+          contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: tabBarClearance, gap: space.md }}
           ListHeaderComponent={segment === 'professional' ? <ProfessionalHint /> : null}
           ListEmptyComponent={
             <EmptyState icon="users" title={voice.emptyDiscoveryTitle('current')} body={voice.emptyDiscoveryBody} />
           }
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <PersonCard
               person={item}
+              index={index}
               connectLabel={connectedIds.has(item.userId) ? 'Request sent' : 'Connect'}
               connectDisabled={connectedIds.has(item.userId)}
+              connected={connectedIds.has(item.userId)}
               onConnect={() => onConnect(item.userId)}
             />
           )}

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { InterstitialAd, MobileAds, RewardedAd, RewardedAdEventType, AdEventType } from 'react-native-google-mobile-ads';
 
 import { adUnitIds } from '@/config/ads';
+import { loadAdsModule } from '@/lib/nativeAds';
 import { track } from '@/services/analytics';
 
 /**
@@ -10,6 +10,10 @@ import { track } from '@/services/analytics';
  * knows the placement rules from §53/§55: never onboarding, never inside a
  * connection request or conversation, never a safety screen, never right
  * after signup, and interstitials are frequency-capped.
+ *
+ * Every native call is guarded through loadAdsModule() (see
+ * lib/nativeAds.ts) so running in Expo Go — where the native AdMob module
+ * doesn't exist — quietly disables ads instead of crashing the app.
  */
 
 export type AdSurface =
@@ -42,9 +46,15 @@ let sessionInterstitialCount = 0;
 let consentGranted = true; // Wire to AdsConsent (UMP) result once a real Publisher ID is configured.
 
 export const AdManager = {
+  isNativeModuleAvailable(): boolean {
+    return loadAdsModule() !== null;
+  },
+
   async initialize(): Promise<void> {
     if (initialized) return;
-    await MobileAds().initialize();
+    const mod = loadAdsModule();
+    if (!mod) return;
+    await mod.MobileAds().initialize();
     initialized = true;
   },
 
@@ -54,7 +64,7 @@ export const AdManager = {
 
   /** Whether a banner is allowed to render at all on this surface — the <AdBanner/> component checks this before mounting. */
   isBannerEligible(surface: AdSurface): boolean {
-    return consentGranted && !NEVER_ELIGIBLE.has(surface);
+    return this.isNativeModuleAvailable() && consentGranted && !NEVER_ELIGIBLE.has(surface);
   },
 
   bannerUnitId(): string {
@@ -62,7 +72,8 @@ export const AdManager = {
   },
 
   async showInterstitialIfEligible(surface: AdSurface): Promise<boolean> {
-    if (!consentGranted || NEVER_ELIGIBLE.has(surface)) return false;
+    const mod = loadAdsModule();
+    if (!mod || !consentGranted || NEVER_ELIGIBLE.has(surface)) return false;
     if (sessionInterstitialCount >= MAX_INTERSTITIALS_PER_SESSION) return false;
 
     const lastShownRaw = await AsyncStorage.getItem(LAST_SHOWN_KEY);
@@ -70,17 +81,17 @@ export const AdManager = {
     if (Date.now() - lastShown < MIN_MS_BETWEEN_INTERSTITIALS) return false;
 
     return new Promise((resolve) => {
-      const interstitial = InterstitialAd.createForAdRequest(adUnitIds.interstitial);
+      const interstitial = mod.InterstitialAd.createForAdRequest(adUnitIds.interstitial);
       let settled = false;
 
       const cleanup = interstitial.addAdEventsListener(({ type }) => {
-        if (type === AdEventType.LOADED) {
+        if (type === mod.AdEventType.LOADED) {
           interstitial.show();
-        } else if (type === AdEventType.CLOSED || type === AdEventType.ERROR) {
+        } else if (type === mod.AdEventType.CLOSED || type === mod.AdEventType.ERROR) {
           if (!settled) {
             settled = true;
             cleanup();
-            resolve(type === AdEventType.CLOSED);
+            resolve(type === mod.AdEventType.CLOSED);
           }
         }
       });
@@ -99,19 +110,20 @@ export const AdManager = {
    * auto-play (brief §54).
    */
   async showRewarded(): Promise<{ rewarded: boolean }> {
-    if (!consentGranted) return { rewarded: false };
+    const mod = loadAdsModule();
+    if (!mod || !consentGranted) return { rewarded: false };
 
     return new Promise((resolve) => {
-      const rewarded = RewardedAd.createForAdRequest(adUnitIds.rewarded);
+      const rewarded = mod.RewardedAd.createForAdRequest(adUnitIds.rewarded);
       let earned = false;
 
       const cleanup = rewarded.addAdEventsListener(({ type }) => {
-        if (type === RewardedAdEventType.LOADED) {
+        if (type === mod.RewardedAdEventType.LOADED) {
           rewarded.show();
-        } else if (type === RewardedAdEventType.EARNED_REWARD) {
+        } else if (type === mod.RewardedAdEventType.EARNED_REWARD) {
           earned = true;
           track('rewarded_ad_completed');
-        } else if (type === AdEventType.CLOSED || type === AdEventType.ERROR) {
+        } else if (type === mod.AdEventType.CLOSED || type === mod.AdEventType.ERROR) {
           cleanup();
           resolve({ rewarded: earned });
         }

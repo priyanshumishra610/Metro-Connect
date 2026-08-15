@@ -18,32 +18,40 @@ export const radius = {
   pill: 999,
 } as const;
 
-/** Depth carries an offset and a soft blur — never a zero-offset glow. */
+/**
+ * Depth carries an offset and a soft blur — never a zero-offset glow. The
+ * editorial ink-on-paper world (v3) leans on a crisp border for definition
+ * first and shadow second — these are deliberately quieter than a typical
+ * "card app" so flat paper sections don't read as floating tiles.
+ */
 export const shadow = {
   card: {
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.28,
-    shadowRadius: 20,
-    elevation: 6,
+    shadowColor: '#17161A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   raised: {
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.22,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowColor: '#17161A',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   floating: {
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.34,
-    shadowRadius: 28,
-    elevation: 10,
+    shadowColor: '#17161A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 5,
   },
 } as const;
 
 export const hitSlop = { top: 10, bottom: 10, left: 10, right: 10 };
+
+/** Bottom breathing room for scrollable tab-screen content — the flush in-flow tab bar already reserves its own space, this is just comfortable trailing padding. */
+export const tabBarClearance = 32;
 
 /** Minimum accessible touch target (44pt, iOS HIG / Apple design floor). */
 export const minTouchTarget = 44;

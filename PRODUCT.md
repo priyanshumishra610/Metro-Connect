@@ -119,11 +119,15 @@ only). Comic-book devices (speech bubbles, action words like "WHOOSH!," "ONE LES
 narration boxes, station-sign/ticket motifs) are used sparingly, for specific special moments,
 not as the default UI language.
 
-The user volunteered a binding palette and type system (recorded as-is, not to be expanded or
-reinterpreted): background `#050816`, surface `#0B1020`, card `#111827`; accents blue `#3B82F6`,
-cyan `#38BDF8`, yellow `#FACC15`, orange `#FB923C`, green `#22C55E`, pink `#EC4899`; white
-`#F8FAFC`, muted `#94A3B8`, border `#1E293B`. Typography: Space Grotesk (headings), Inter
-(body), a Bangers-style expressive display face reserved for comic accents only.
+Typography is a binding commitment: Space Grotesk (headings), Inter (body), a Bangers-style
+expressive display face reserved for comic accents only.
+
+**Superseded:** the original brief volunteered a binding dark palette (background `#050816`,
+etc.) recorded here at the time. The user later explicitly asked for a full redesign — white
+background, glassmorphism, heavier motion — which overrides that palette; see DESIGN.md v2 for
+what actually shipped. The original brand hues (blue `#3B82F6`, cyan `#38BDF8`, yellow `#FACC15`,
+orange `#FB923C`, green `#22C55E`, pink `#EC4899`) survive as the decorative accent family, just
+retuned for contrast on a light surface rather than reused verbatim.
 
 ## Evidence on Hand
 

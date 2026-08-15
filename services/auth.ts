@@ -1,4 +1,6 @@
 import type { Session } from '@supabase/supabase-js';
+import { makeRedirectUri } from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 
 import { HAS_SUPABASE_CONFIG } from '@/config/env';
 import { supabase } from '@/lib/supabase';
@@ -19,18 +21,40 @@ export async function signInWithEmail(email: string, password: string): Promise<
 }
 
 /**
- * Google Sign-In needs a native OAuth flow (expo-auth-session or
- * @react-native-google-signin/google-signin) wired to a Google OAuth client
- * ID, which is a per-project credential the brief says not to invent
- * (§13, §82). This function performs the Supabase half of the exchange —
- * swap `idToken` for the one the native flow returns once that package and
- * its client IDs are configured.
+ * Google Sign-In via Supabase's hosted OAuth flow: open a browser session
+ * at the Google consent screen (through Supabase, which brokers the actual
+ * Google OAuth client credentials — those live in the Supabase dashboard,
+ * never in this app, per brief §13/§82), capture the redirect back into the
+ * app, then exchange the returned code for a session. No native Google SDK
+ * needed, so this works in Expo Go as well as a dev client/production
+ * build — see docs/SUPABASE_SETUP.md for the one-time dashboard setup this
+ * depends on.
  */
-export async function signInWithGoogleIdToken(idToken: string): Promise<ServiceResult<Session>> {
+export async function signInWithGoogleOAuth(): Promise<ServiceResult<Session>> {
   if (!HAS_SUPABASE_CONFIG) return fail('not_configured');
-  const { data, error } = await supabase.auth.signInWithIdToken({ provider: 'google', token: idToken });
-  if (error || !data.session) return fail(fromSupabaseError(error).kind, error?.message);
-  return ok(data.session);
+
+  const redirectTo = makeRedirectUri({ path: 'auth-callback' });
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo, skipBrowserRedirect: true },
+  });
+  if (error || !data?.url) return fail(fromSupabaseError(error).kind, error?.message);
+
+  const browserResult = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+  if (browserResult.type !== 'success' || !browserResult.url) {
+    return fail('validation', 'Google sign-in was cancelled.');
+  }
+
+  const code = new URL(browserResult.url).searchParams.get('code');
+  if (!code) return fail('server_error', "Google sign-in didn't return a code.");
+
+  const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+  if (exchangeError || !sessionData.session) {
+    return fail(fromSupabaseError(exchangeError).kind, exchangeError?.message);
+  }
+
+  return ok(sessionData.session);
 }
 
 export async function signOut(): Promise<ServiceResult<null>> {

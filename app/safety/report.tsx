@@ -112,5 +112,5 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.card,
   },
-  rowSelected: { borderColor: colors.danger, backgroundColor: 'rgba(239, 68, 68, 0.08)' },
+  rowSelected: { borderColor: colors.danger, backgroundColor: 'rgba(179, 38, 30, 0.08)' },
 });

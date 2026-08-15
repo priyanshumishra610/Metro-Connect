@@ -1,19 +1,22 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 
 import { Text } from '@/components/ui/Text';
-import { colors } from '@/constants/colors';
 import { space } from '@/constants/spacing';
+import { loadAdsModule } from '@/lib/nativeAds';
 import { AdManager, type AdSurface } from '@/services/ads';
 
 /**
  * The only place BannerAd gets rendered. Clearly labeled "Ad" (brief §53)
- * and refuses to mount at all on a surface AdManager marks ineligible —
- * screens don't need to know the placement rules themselves.
+ * and refuses to mount at all on a surface AdManager marks ineligible, or
+ * when the native ads module isn't available (Expo Go) — screens don't
+ * need to know either rule themselves.
  */
 export function AdBanner({ surface }: { surface: AdSurface }) {
-  if (!AdManager.isBannerEligible(surface)) return null;
+  const mod = loadAdsModule();
+  if (!mod || !AdManager.isBannerEligible(surface)) return null;
+
+  const { BannerAd, BannerAdSize } = mod;
 
   return (
     <View style={styles.wrapper}>

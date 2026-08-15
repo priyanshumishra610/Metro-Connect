@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { TruecallerSignInButton } from '@/components/auth/TruecallerSignInButton';
 import { Button } from '@/components/ui/Button';
 import { InlineError } from '@/components/ui/InlineError';
 import { ScreenContainer } from '@/components/ui/ScreenContainer';
@@ -93,6 +95,17 @@ export default function Signup() {
 
           <View style={{ height: space.md }} />
           <Button label="Create account" onPress={onSubmit} loading={loading} fullWidth />
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm, marginVertical: space.lg }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+            <Text variant="caption" color="textSecondary">OR</Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+          </View>
+
+          <View style={{ gap: space.sm }}>
+            <TruecallerSignInButton onError={setError} />
+            <GoogleSignInButton onError={setError} />
+          </View>
 
           <Text variant="caption" color="textSecondary" style={{ marginTop: space.lg, textAlign: 'center' }}>
             By continuing you agree to Metro Connect's Terms and Privacy Policy.

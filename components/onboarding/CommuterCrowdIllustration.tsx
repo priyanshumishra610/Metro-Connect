@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-import { colors, palette } from '@/constants/colors';
+import { colors } from '@/constants/colors';
 
 export interface CommuterCrowdIllustrationProps {
   width?: number;
@@ -11,8 +11,6 @@ export interface CommuterCrowdIllustrationProps {
   /** Draw connecting lines between highlighted figures. */
   showConnections?: boolean;
 }
-
-const ACCENTS = [palette.blue, palette.cyan, palette.orange, palette.pink];
 
 // Fixed 3x3 grid of stylized commuter silhouettes riding inside a train
 // window frame — an original, authored scene (never a stock photo or a
@@ -42,7 +40,7 @@ export function CommuterCrowdIllustration({
             <Path
               key={`link-${idx}`}
               d={`M${a.x} ${a.y - 10} L${b.x} ${b.y - 10}`}
-              stroke={palette.cyan}
+              stroke={colors.interactive}
               strokeWidth={1.5}
               strokeDasharray="3 5"
               strokeLinecap="round"
@@ -53,8 +51,7 @@ export function CommuterCrowdIllustration({
 
       {POSITIONS.map((pos, i) => {
         const isHighlighted = highlighted.includes(i);
-        const accent = ACCENTS[i % ACCENTS.length];
-        const fill = isHighlighted ? accent : colors.border;
+        const fill = isHighlighted ? colors.interactive : colors.border;
         return (
           <React.Fragment key={i}>
             <Circle cx={pos.x} cy={pos.y - 22} r={14} fill={fill} opacity={isHighlighted ? 1 : 0.55} />

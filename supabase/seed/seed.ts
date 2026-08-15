@@ -22,7 +22,8 @@ if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
   process.exit(1);
 }
 
-const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
+// Non-null: the `!SUPABASE_URL || !SERVICE_ROLE_KEY` check above already exited the process otherwise.
+const admin = createClient(SUPABASE_URL!, SERVICE_ROLE_KEY!, { auth: { autoRefreshToken: false, persistSession: false } });
 
 const INTERESTS = [
   'AI', 'Startups', 'Design', 'Books', 'Fitness', 'Gaming', 'Music', 'Movies',

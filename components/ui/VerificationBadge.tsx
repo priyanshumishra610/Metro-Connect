@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.xs,
     paddingVertical: 3,
     borderRadius: radius.sm,
-    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    backgroundColor: 'rgba(47, 107, 79, 0.12)',
     alignSelf: 'flex-start',
   },
 });
