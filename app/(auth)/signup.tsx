@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
@@ -47,7 +47,7 @@ export default function Signup() {
     return (
       <ScreenContainer edges={['top', 'bottom']}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: space.md, paddingHorizontal: space.lg }}>
-          <Feather name="mail" size={32} color={colors.interactive} />
+          <Icon name="mail" size={32} color={colors.interactive} />
           <Text variant="h2" style={{ textAlign: 'center' }}>Check your inbox</Text>
           <Text variant="body" color="textSecondary" style={{ textAlign: 'center' }}>
             We sent a confirmation link to {email}. Verify your email, then come back and sign in.
@@ -62,7 +62,7 @@ export default function Signup() {
     <ScreenContainer edges={['top', 'bottom']}>
       <View style={{ paddingTop: space.sm }}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Back">
-          <Feather name="chevron-left" size={22} color={colors.textPrimary} />
+          <Icon name="chevron-left" size={22} color={colors.textPrimary} />
         </Pressable>
       </View>
 

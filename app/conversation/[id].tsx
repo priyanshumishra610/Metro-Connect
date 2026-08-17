@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
@@ -67,7 +67,7 @@ export default function ConversationScreen() {
     <ScreenContainer edges={['top', 'bottom']} padded={false}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Back">
-          <Feather name="chevron-left" size={22} color={colors.textPrimary} />
+          <Icon name="chevron-left" size={22} color={colors.textPrimary} />
         </Pressable>
         {context && <Avatar name={context.counterpart.display_name ?? 'Commuter'} imageUrl={context.counterpart.avatar_url} size={36} />}
         <View style={{ flex: 1 }}>
@@ -109,7 +109,7 @@ export default function ConversationScreen() {
             multiline
           />
           <Pressable onPress={() => onSend()} disabled={sending || !draft.trim()} style={styles.sendButton} accessibilityLabel="Send">
-            <Feather name="arrow-up" size={18} color={colors.textOnAccent} />
+            <Icon name="arrow-up" size={18} color={colors.textOnAccent} />
           </Pressable>
         </View>
       </KeyboardAvoidingView>

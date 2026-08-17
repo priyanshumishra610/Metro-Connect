@@ -49,6 +49,7 @@ export const relevanceReasons = {
   sameHomeStation: 'Same home station',
   sameDestination: 'Same destination',
   highRouteOverlap: 'High route overlap',
+  sharedInterchange: 'You both change lines at the same interchange',
   similarTime: 'Similar commute time',
   similarDays: 'Similar commute days',
   sharedInterests: (count: number) => `${count} shared interest${count === 1 ? '' : 's'}`,

@@ -32,6 +32,7 @@ export async function getPrimaryCommute(userId: string): Promise<ServiceResult<C
 export interface CommuteWithStations extends CommutePreference {
   home_station: { name: string } | null;
   destination_station: { name: string } | null;
+  metro_line: { color_hex: string } | null;
 }
 
 export async function getPrimaryCommuteWithStations(userId: string): Promise<ServiceResult<CommuteWithStations | null>> {
@@ -39,7 +40,9 @@ export async function getPrimaryCommuteWithStations(userId: string): Promise<Ser
 
   const { data, error } = await supabase
     .from('commute_preferences')
-    .select('*, home_station:stations!commute_preferences_home_station_id_fkey(name), destination_station:stations!commute_preferences_destination_station_id_fkey(name)')
+    .select(
+      '*, home_station:stations!commute_preferences_home_station_id_fkey(name), destination_station:stations!commute_preferences_destination_station_id_fkey(name), metro_line:metro_lines(color_hex)'
+    )
     .eq('user_id', userId)
     .eq('is_primary', true)
     .eq('is_active', true)

@@ -24,6 +24,7 @@ function toDiscoveredPerson(row: DiscoverCommuterRow): DiscoveredPerson {
   if (row.same_home_station && row.same_destination) reasons.push(relevanceReasons.highRouteOverlap);
   else if (row.same_home_station) reasons.push(relevanceReasons.sameHomeStation);
   else if (row.same_destination) reasons.push(relevanceReasons.sameDestination);
+  if (row.same_interchange) reasons.push(relevanceReasons.sharedInterchange);
   if (row.same_line) reasons.push(relevanceReasons.sameLine);
   if (row.similar_time) reasons.push(relevanceReasons.similarTime);
   if (row.shared_interest_count > 0) reasons.push(relevanceReasons.sharedInterests(row.shared_interest_count));

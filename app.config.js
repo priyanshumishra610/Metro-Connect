@@ -3,9 +3,19 @@
 // static app.json can't do. Everything else here is a direct port of the
 // previous app.json.
 
+// Google's official public test AdMob App IDs (safe to hardcode — not
+// secrets). Used whenever EXPO_PUBLIC_APP_ENV isn't "production" or a real
+// App ID hasn't been set — same safety fallback config/ads.ts uses for ad
+// unit IDs, so a build never silently ships without ads misconfigured.
+const isAdMobProduction = process.env.EXPO_PUBLIC_APP_ENV === 'production';
+const admobAndroidAppId =
+  (isAdMobProduction && process.env.EXPO_PUBLIC_ADMOB_ANDROID_APP_ID) || 'ca-app-pub-3940256099942544~3347511713';
+const admobIosAppId =
+  (isAdMobProduction && process.env.EXPO_PUBLIC_ADMOB_IOS_APP_ID) || 'ca-app-pub-3940256099942544~1458002511';
+
 /** @type {import('expo/config').ExpoConfig} */
 const baseConfig = {
-  name: 'Metro Connect',
+  name: 'Get Along: Metro Connect',
   slug: 'metro-connect',
   scheme: 'metroconnect',
   version: '1.0.0',
@@ -24,10 +34,10 @@ const baseConfig = {
   android: {
     package: 'com.metroconnect.app',
     adaptiveIcon: {
-      backgroundColor: '#FBF9F5',
+      // Sampled from the icon artwork's own corner pixel so any edge the
+      // adaptive mask crops blends in rather than showing a mismatched ring.
+      backgroundColor: '#0B0B15',
       foregroundImage: './assets/android-icon-foreground.png',
-      backgroundImage: './assets/android-icon-background.png',
-      monochromeImage: './assets/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
     intentFilters: [
@@ -58,8 +68,11 @@ const baseConfig = {
     [
       'react-native-google-mobile-ads',
       {
-        androidAppId: 'ca-app-pub-3940256099942544~3347511713',
-        iosAppId: 'ca-app-pub-3940256099942544~1458002511',
+        // Bug fix: these were hardcoded to the test IDs regardless of env,
+        // silently ignoring the admobAndroidAppId/admobIosAppId computed
+        // above — a production build would have shipped test ads forever.
+        androidAppId: admobAndroidAppId,
+        iosAppId: admobIosAppId,
         userTrackingUsageDescription: 'This identifier is used to show you ads that are more relevant to you.',
       },
     ],
@@ -68,12 +81,29 @@ const baseConfig = {
     // clientId — so it's only added once EXPO_PUBLIC_TRUECALLER_CLIENT_ID is
     // set (see docs/TRUECALLER_SETUP.md). Without it, the app builds exactly
     // as before; the Truecaller button just has nothing to call.
+    //
+    // Pointed at the plugin file directly (not the bare package name): the
+    // package ships no app.plugin.js, so Expo's resolver falls back to
+    // loading the package's runtime entry point as if it might be a plugin
+    // — which broke `expo config`/`expo-doctor`/prebuild with a module-
+    // format error, even though it never affected the Metro bundler (a
+    // separate code path that doesn't evaluate config plugins at all).
     ...(process.env.EXPO_PUBLIC_TRUECALLER_CLIENT_ID
-      ? [['@dhana-cs/react-native-truecaller', { clientId: process.env.EXPO_PUBLIC_TRUECALLER_CLIENT_ID }]]
+      ? [
+          [
+            '@dhana-cs/react-native-truecaller/plugins/withTruecaller',
+            { clientId: process.env.EXPO_PUBLIC_TRUECALLER_CLIENT_ID },
+          ],
+        ]
       : []),
   ],
   experiments: {
     typedRoutes: true,
+  },
+  extra: {
+    eas: {
+      projectId: 'def8ecfb-0854-4666-87b8-060505d2ef7e',
+    },
   },
 };
 

@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -11,7 +11,7 @@ import { colors } from '@/constants/colors';
 import { space } from '@/constants/spacing';
 
 export interface OnboardingScaffoldProps {
-  step: number; // 1-10
+  step: number; // 1-11
   totalSteps?: number;
   children: React.ReactNode;
   ctaLabel: string;
@@ -26,7 +26,7 @@ export interface OnboardingScaffoldProps {
 
 export function OnboardingScaffold({
   step,
-  totalSteps = 10,
+  totalSteps = 11,
   children,
   ctaLabel,
   onCta,
@@ -43,7 +43,7 @@ export function OnboardingScaffold({
       <View style={styles.header}>
         {showBack && router.canGoBack() ? (
           <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Back" accessibilityRole="button">
-            <Feather name="chevron-left" size={22} color={colors.textPrimary} />
+            <Icon name="chevron-left" size={22} color={colors.textPrimary} />
           </Pressable>
         ) : (
           <View style={{ width: 22 }} />

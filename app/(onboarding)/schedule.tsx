@@ -47,7 +47,7 @@ export default function ScheduleScreen() {
   const activePreset = PRESETS.find((p) => p.start === startTime && p.end === endTime);
 
   return (
-    <OnboardingScaffold step={7} stretch ctaLabel="Continue" onCta={() => router.push('/(onboarding)/frequency')}>
+    <OnboardingScaffold step={8} stretch ctaLabel="Continue" onCta={() => router.push('/(onboarding)/frequency')}>
       <View style={{ gap: space.lg }}>
         <Text variant="h1">When do you usually travel?</Text>
 

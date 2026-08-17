@@ -12,7 +12,7 @@ export default function Story4() {
   const router = useRouter();
 
   return (
-    <OnboardingScaffold step={4} ctaLabel="Get Started" onCta={() => router.push('/(onboarding)/station')}>
+    <OnboardingScaffold step={4} ctaLabel="Get Started" onCta={() => router.push('/(onboarding)/city')}>
       <View style={{ alignItems: 'center', gap: space.lg }}>
         <ComicLabel text={comic.nextStop} tone="founding" size="small" />
         <Text variant="display" style={{ textAlign: 'center' }}>

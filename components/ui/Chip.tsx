@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/ui/Icon';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -10,7 +10,7 @@ import { radius, space } from '@/constants/spacing';
 
 export interface ChipProps {
   label: string;
-  icon?: keyof typeof Feather.glyphMap;
+  icon?: IconName;
   tone?: ColorRole;
   selected?: boolean;
   onPress?: () => void;
@@ -25,7 +25,7 @@ export function Chip({ label, icon, tone = 'interactive', selected, onPress }: C
 
   const content = (
     <>
-      {icon && <Feather name={icon} size={13} color={selected ? colors.textOnAccent : colors[tone]} style={styles.icon} />}
+      {icon && <Icon name={icon} size={13} color={selected ? colors.textOnAccent : colors[tone]} style={styles.icon} />}
       <Text variant="smallMedium" color={selected ? 'textOnAccent' : 'textPrimary'}>
         {label}
       </Text>

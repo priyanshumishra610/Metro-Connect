@@ -40,6 +40,14 @@ export async function respondToConnection(
   return ok(data as Connection);
 }
 
+/** The DB trigger that flips a connection to "accepted" also creates its conversation in the same transaction — this looks it up right after, so the UI can jump straight there (the "IT'S A CONNECTION." celebration's CTA). */
+export async function getConversationIdForConnection(connectionId: string): Promise<ServiceResult<string | null>> {
+  if (!HAS_SUPABASE_CONFIG) return ok(null);
+  const { data, error } = await supabase.from('conversations').select('id').eq('connection_id', connectionId).maybeSingle();
+  if (error) return fail(fromSupabaseError(error).kind, error.message);
+  return ok(data?.id ?? null);
+}
+
 export async function withdrawConnection(connectionId: string): Promise<ServiceResult<null>> {
   if (!HAS_SUPABASE_CONFIG) return fail('not_configured');
   const { error } = await supabase.from('connections').delete().eq('id', connectionId);

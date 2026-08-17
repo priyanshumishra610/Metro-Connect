@@ -23,7 +23,7 @@ export default function FrequencyScreen() {
 
   return (
     <OnboardingScaffold
-      step={8}
+      step={9}
       stretch
       ctaLabel="Continue"
       ctaDisabled={!frequency}

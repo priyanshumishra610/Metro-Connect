@@ -1,3 +1,5 @@
+import type { IconName } from '@/components/ui/Icon';
+
 export type InterestCategory =
   | 'technology'
   | 'lifestyle'
@@ -9,7 +11,7 @@ export interface InterestDefinition {
   slug: string;
   label: string;
   category: InterestCategory;
-  icon: keyof typeof import('@expo/vector-icons').Feather.glyphMap;
+  icon: IconName;
 }
 
 /** Seed interest catalog — mirrors the `interests` table (brief §20). */

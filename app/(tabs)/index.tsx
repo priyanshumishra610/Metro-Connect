@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
@@ -63,6 +63,7 @@ export default function Home() {
             <MetroRouteVisual
               homeLabel={commute.home_station?.name ?? 'Home'}
               destinationLabel={commute.destination_station?.name ?? 'Destination'}
+              lineColor={commute.metro_line?.color_hex}
             />
           </Card>
         ) : loading ? (
@@ -83,7 +84,7 @@ export default function Home() {
                 </Text>
                 <Text variant="small" color="textSecondary">From people on your route</Text>
               </View>
-              <Feather name="chevron-right" size={18} color={colors.textSecondary} />
+              <Icon name="chevron-right" size={18} color={colors.textSecondary} />
             </Card>
           </Pressable>
         )}

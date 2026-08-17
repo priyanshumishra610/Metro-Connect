@@ -18,7 +18,7 @@ export default function InterestsScreen() {
 
   return (
     <OnboardingScaffold
-      step={9}
+      step={10}
       stretch
       ctaLabel={interestIds.length > 0 ? `Continue · ${interestIds.length} selected` : 'Continue'}
       onCta={goNext}

@@ -12,10 +12,10 @@ export const DEMO_CITY = { id: 'demo-city', name: 'Delhi', country: 'India', tim
 export const DEMO_LINE = { id: 'demo-line-blue', name: 'Blue Line', color_hex: '#3B82F6' };
 
 export const DEMO_STATIONS: Station[] = [
-  { id: 'st-rajiv-chowk', city_id: DEMO_CITY.id, metro_system_id: 'demo-system', metro_line_id: DEMO_LINE.id, name: 'Rajiv Chowk', latitude: 28.6328, longitude: 77.2197, sequence_number: 1, is_active: true, created_at: '' },
-  { id: 'st-dwarka', city_id: DEMO_CITY.id, metro_system_id: 'demo-system', metro_line_id: DEMO_LINE.id, name: 'Dwarka Sector 21', latitude: 28.5522, longitude: 77.0589, sequence_number: 2, is_active: true, created_at: '' },
-  { id: 'st-noida', city_id: DEMO_CITY.id, metro_system_id: 'demo-system', metro_line_id: DEMO_LINE.id, name: 'Noida Sector 62', latitude: 28.6280, longitude: 77.3649, sequence_number: 3, is_active: true, created_at: '' },
-  { id: 'st-huda', city_id: DEMO_CITY.id, metro_system_id: 'demo-system', metro_line_id: DEMO_LINE.id, name: 'HUDA City Centre', latitude: 28.4595, longitude: 77.0726, sequence_number: 4, is_active: true, created_at: '' },
+  { id: 'st-rajiv-chowk', city_id: DEMO_CITY.id, metro_system_id: 'demo-system', metro_line_id: DEMO_LINE.id, name: 'Rajiv Chowk', latitude: 28.6328, longitude: 77.2197, sequence_number: 1, is_active: true, interchange_group: null, created_at: '' },
+  { id: 'st-dwarka', city_id: DEMO_CITY.id, metro_system_id: 'demo-system', metro_line_id: DEMO_LINE.id, name: 'Dwarka Sector 21', latitude: 28.5522, longitude: 77.0589, sequence_number: 2, is_active: true, interchange_group: null, created_at: '' },
+  { id: 'st-noida', city_id: DEMO_CITY.id, metro_system_id: 'demo-system', metro_line_id: DEMO_LINE.id, name: 'Noida Sector 62', latitude: 28.6280, longitude: 77.3649, sequence_number: 3, is_active: true, interchange_group: null, created_at: '' },
+  { id: 'st-huda', city_id: DEMO_CITY.id, metro_system_id: 'demo-system', metro_line_id: DEMO_LINE.id, name: 'HUDA City Centre', latitude: 28.4595, longitude: 77.0726, sequence_number: 4, is_active: true, interchange_group: null, created_at: '' },
 ];
 
 export const DEMO_INTERESTS: Interest[] = [
@@ -56,6 +56,7 @@ export function demoDiscoverRows(): DiscoverCommuterRow[] {
     same_line: true,
     same_home_station: i < 3,
     same_destination: i % 2 === 0,
+    same_interchange: false,
     similar_time: true,
     shared_interest_count: (i % 3) + 1,
   }));

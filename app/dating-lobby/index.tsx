@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, View } from 'react-native';
@@ -62,7 +62,7 @@ export default function DatingLobby() {
     <ScreenContainer edges={['top', 'bottom']}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm, marginBottom: space.md }}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Back">
-          <Feather name="chevron-left" size={22} color={colors.textPrimary} />
+          <Icon name="chevron-left" size={22} color={colors.textPrimary} />
         </Pressable>
         <Text variant="h2">Dating Lobby</Text>
       </View>
@@ -71,7 +71,7 @@ export default function DatingLobby() {
         <ActivityIndicator style={{ marginTop: space.xl }} />
       ) : !optedIn ? (
         <View style={{ gap: space.md }}>
-          <Feather name="heart" size={28} color={colors.dating} />
+          <Icon name="heart" size={28} color={colors.dating} />
           <Text variant="body" color="textSecondary">
             This is a separate, opt-in space — nobody sees you here unless you turn it on, and
             it's completely independent from the friendship and networking side of Metro Connect.

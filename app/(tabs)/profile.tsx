@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -12,7 +12,7 @@ import { colors } from '@/constants/colors';
 import { space, tabBarClearance } from '@/constants/spacing';
 import { useAuth } from '@/hooks/useAuth';
 
-const MENU_ITEMS: { icon: keyof typeof Feather.glyphMap; label: string; href: string }[] = [
+const MENU_ITEMS: { icon: IconName; label: string; href: string }[] = [
   { icon: 'edit-2', label: 'Edit profile', href: '/settings/edit-profile' },
   { icon: 'shield', label: 'Safety Center', href: '/safety' },
   { icon: 'heart', label: 'Dating Lobby', href: '/dating-lobby' },
@@ -40,7 +40,7 @@ export default function Profile() {
 
           {profile?.founding_commuter_number && (
             <Card style={styles.foundingCard}>
-              <Feather name="award" size={14} color={colors.founding} />
+              <Icon name="award" size={14} color={colors.founding} />
               <Text variant="smallMedium" color="founding">
                 FOUNDING COMMUTER #{String(profile.founding_commuter_number).padStart(3, '0')}
               </Text>
@@ -62,9 +62,9 @@ export default function Profile() {
               style={styles.menuRow}
               accessibilityRole="button"
             >
-              <Feather name={item.icon} size={18} color={colors.textPrimary} />
+              <Icon name={item.icon} size={18} color={colors.textPrimary} />
               <Text variant="bodyMedium" style={{ flex: 1 }}>{item.label}</Text>
-              <Feather name="chevron-right" size={18} color={colors.textSecondary} />
+              <Icon name="chevron-right" size={18} color={colors.textSecondary} />
             </Pressable>
           ))}
         </View>

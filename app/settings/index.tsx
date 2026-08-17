@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -17,6 +17,7 @@ export default function Settings() {
     <ScreenContainer edges={['bottom']}>
       <View style={{ gap: space.xs, marginTop: space.sm }}>
         <Row icon="user" label="Edit profile" onPress={() => router.push('/settings/edit-profile')} />
+        <Row icon="map-pin" label="Edit your route" onPress={() => router.push('/settings/edit-route')} />
         <Row icon="gift" label="Invite from your route" onPress={() => router.push('/settings/invite')} />
         <Row icon="shield" label="Safety Center" onPress={() => router.push('/safety')} />
         <Row icon="lock" label="Privacy" onPress={() => router.push('/safety')} />
@@ -43,7 +44,7 @@ function Row({
   destructive,
   disabled,
 }: {
-  icon: keyof typeof Feather.glyphMap;
+  icon: IconName;
   label: string;
   onPress: () => void;
   destructive?: boolean;
@@ -51,11 +52,11 @@ function Row({
 }) {
   return (
     <Pressable onPress={onPress} disabled={disabled} style={[styles.row, disabled && { opacity: 0.4 }]} accessibilityRole="button">
-      <Feather name={icon} size={18} color={destructive ? colors.danger : colors.textPrimary} />
+      <Icon name={icon} size={18} color={destructive ? colors.danger : colors.textPrimary} />
       <Text variant="bodyMedium" color={destructive ? 'danger' : 'textPrimary'} style={{ flex: 1 }}>
         {label}
       </Text>
-      <Feather name="chevron-right" size={18} color={colors.textSecondary} />
+      <Icon name="chevron-right" size={18} color={colors.textSecondary} />
     </Pressable>
   );
 }

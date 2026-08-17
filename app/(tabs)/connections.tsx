@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, View } from 'react-native';
 
+import { ConnectionCelebration } from '@/components/connections/ConnectionCelebration';
 import { AnimatedListItem } from '@/components/ui/AnimatedListItem';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -13,6 +14,7 @@ import { space, tabBarClearance } from '@/constants/spacing';
 import { voice } from '@/constants/copy';
 import { useAuth } from '@/hooks/useAuth';
 import {
+  getConversationIdForConnection,
   listAcceptedConnections,
   listIncomingRequests,
   respondToConnection,
@@ -26,6 +28,7 @@ export default function Connections() {
   const [accepted, setAccepted] = useState<ConnectionWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [respondingId, setRespondingId] = useState<string | null>(null);
+  const [celebrating, setCelebrating] = useState<{ name: string; avatarUrl: string | null; conversationId: string | null } | null>(null);
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -40,10 +43,20 @@ export default function Connections() {
     load();
   }, [load]);
 
-  const respond = async (connectionId: string, status: 'accepted' | 'declined') => {
-    setRespondingId(connectionId);
-    await respondToConnection(connectionId, status);
+  const respond = async (request: ConnectionWithProfile, status: 'accepted' | 'declined') => {
+    setRespondingId(request.id);
+    const result = await respondToConnection(request.id, status);
     setRespondingId(null);
+
+    if (status === 'accepted' && !result.error) {
+      const conversation = await getConversationIdForConnection(request.id);
+      setCelebrating({
+        name: request.counterpart.display_name ?? 'A fellow commuter',
+        avatarUrl: request.counterpart.avatar_url,
+        conversationId: conversation.data,
+      });
+    }
+
     load();
   };
 
@@ -75,10 +88,10 @@ export default function Connections() {
                       <View style={{ gap: space.xs }}>
                         <Button
                           label="Accept"
-                          onPress={() => respond(request.id, 'accepted')}
+                          onPress={() => respond(request, 'accepted')}
                           loading={respondingId === request.id}
                         />
-                        <Button label="Decline" onPress={() => respond(request.id, 'declined')} variant="ghost" />
+                        <Button label="Decline" onPress={() => respond(request, 'declined')} variant="ghost" />
                       </View>
                     </Card>
                   ))}
@@ -111,6 +124,19 @@ export default function Connections() {
           )}
         />
       )}
+
+      <ConnectionCelebration
+        visible={celebrating !== null}
+        personName={celebrating?.name ?? ''}
+        personAvatarUrl={celebrating?.avatarUrl}
+        onSayHello={() => {
+          const conversationId = celebrating?.conversationId;
+          setCelebrating(null);
+          if (conversationId) router.push(`/conversation/${conversationId}`);
+          else router.push('/(tabs)/messages');
+        }}
+        onDismiss={() => setCelebrating(null)}
+      />
     </ScreenContainer>
   );
 }

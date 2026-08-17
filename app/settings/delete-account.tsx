@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { View } from 'react-native';
@@ -35,7 +35,7 @@ export default function DeleteAccount() {
   return (
     <ScreenContainer edges={['bottom']}>
       <View style={{ paddingTop: space.lg, gap: space.md }}>
-        <Feather name="alert-triangle" size={28} color={colors.danger} />
+        <Icon name="alert-triangle" size={28} color={colors.danger} />
         <Text variant="h2">This can't be undone.</Text>
         <Text variant="body" color="textSecondary">
           Deleting your account removes your profile, commute, and interests immediately. Existing

@@ -39,55 +39,43 @@ const DEMO_USERS = [
   { email: 'sara@metroconnect.demo', displayName: 'Sara', profession: 'Photographer', interests: ['Photography', 'Travel', 'Music'] },
 ];
 
-const STATIONS = [
-  { name: 'Rajiv Chowk', sequence: 1 },
-  { name: 'Dwarka Sector 21', sequence: 2 },
-  { name: 'Noida Sector 62', sequence: 3 },
-  { name: 'HUDA City Centre', sequence: 4 },
-];
+// Real Delhi Metro Blue Line stations (seeded by
+// supabase/migrations/0006_metro_network_data.sql) — this script looks them
+// up rather than inserting its own, so demo users ride the same real network
+// everyone else does instead of a placeholder line with fabricated stations.
+const STATION_NAMES = ['Rajiv Chowk', 'Dwarka Sector 21'];
 
 async function main() {
-  console.log('Seeding city, metro system, line, stations...');
+  console.log('Looking up city, metro system, line, stations from 0006_metro_network_data.sql...');
 
-  const { data: city, error: cityError } = await admin
-    .from('cities')
-    .upsert({ name: 'Delhi', country: 'India', timezone: 'Asia/Kolkata' }, { onConflict: 'name' })
-    .select()
-    .single();
-  if (cityError) throw cityError;
-
-  const { data: system, error: systemError } = await admin
-    .from('metro_systems')
-    .upsert({ city_id: city.id, name: 'Delhi Metro' }, { onConflict: 'city_id,name' })
-    .select()
-    .single();
-  if (systemError) throw systemError;
+  const { data: city, error: cityError } = await admin.from('cities').select('*').eq('name', 'Delhi').single();
+  if (cityError || !city) {
+    throw new Error('Delhi city not found — run supabase/migrations/0006_metro_network_data.sql before seeding.');
+  }
 
   const { data: line, error: lineError } = await admin
     .from('metro_lines')
-    .upsert({ metro_system_id: system.id, name: 'Blue Line', color_hex: '#3B82F6' }, { onConflict: 'metro_system_id,name' })
-    .select()
+    .select('*, metro_systems!inner(city_id, name)')
+    .eq('name', 'Blue Line')
+    .eq('metro_systems.city_id', city.id)
     .single();
-  if (lineError) throw lineError;
+  if (lineError || !line) {
+    throw new Error('Delhi Metro Blue Line not found — run supabase/migrations/0006_metro_network_data.sql before seeding.');
+  }
 
   const stationIds: Record<string, string> = {};
-  for (const station of STATIONS) {
+  for (const name of STATION_NAMES) {
     const { data, error } = await admin
       .from('stations')
-      .upsert(
-        {
-          city_id: city.id,
-          metro_system_id: system.id,
-          metro_line_id: line.id,
-          name: station.name,
-          sequence_number: station.sequence,
-        },
-        { onConflict: 'city_id,metro_line_id,name' }
-      )
-      .select()
+      .select('id')
+      .eq('city_id', city.id)
+      .eq('metro_line_id', line.id)
+      .eq('name', name)
       .single();
-    if (error) throw error;
-    stationIds[station.name] = data.id;
+    if (error || !data) {
+      throw new Error(`Station "${name}" not found on Delhi Metro Blue Line — run supabase/migrations/0006_metro_network_data.sql before seeding.`);
+    }
+    stationIds[name] = data.id;
   }
 
   console.log('Seeding interests...');

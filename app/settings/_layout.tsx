@@ -16,6 +16,7 @@ export default function SettingsLayout() {
     >
       <Stack.Screen name="index" options={{ title: 'Settings' }} />
       <Stack.Screen name="edit-profile" options={{ title: 'Edit profile' }} />
+      <Stack.Screen name="edit-route" options={{ title: 'Edit your route' }} />
       <Stack.Screen name="invite" options={{ title: 'Invite' }} />
       <Stack.Screen name="delete-account" options={{ title: 'Delete account' }} />
     </Stack>

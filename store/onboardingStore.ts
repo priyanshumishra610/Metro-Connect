@@ -3,6 +3,8 @@ import { create } from 'zustand';
 import type { CommuteFrequency } from '@/types/database';
 
 interface OnboardingState {
+  cityId: string | null;
+  cityName: string | null;
   homeStationId: string | null;
   homeStationName: string | null;
   destinationStationId: string | null;
@@ -12,6 +14,7 @@ interface OnboardingState {
   endTime: string;
   frequency: CommuteFrequency | null;
   interestIds: string[];
+  setCity: (id: string, name: string) => void;
   setHomeStation: (id: string, name: string) => void;
   setDestinationStation: (id: string, name: string) => void;
   setMetroLine: (id: string) => void;
@@ -22,6 +25,8 @@ interface OnboardingState {
 }
 
 const initial = {
+  cityId: null,
+  cityName: null,
   homeStationId: null,
   homeStationName: null,
   destinationStationId: null,
@@ -33,9 +38,10 @@ const initial = {
   interestIds: [] as string[],
 };
 
-/** Holds in-progress onboarding answers until the final save — nothing here touches the network until screen 10 commits it. */
+/** Holds in-progress onboarding answers until the final save — nothing here touches the network until screen 11 commits it. */
 export const useOnboardingStore = create<OnboardingState>((set) => ({
   ...initial,
+  setCity: (id, name) => set({ cityId: id, cityName: name }),
   setHomeStation: (id, name) => set({ homeStationId: id, homeStationName: name }),
   setDestinationStation: (id, name) => set({ destinationStationId: id, destinationStationName: name }),
   setMetroLine: (id) => set({ metroLineId: id }),

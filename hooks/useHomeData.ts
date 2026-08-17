@@ -49,6 +49,7 @@ export function useHomeData() {
         updated_at: '',
         home_station: { name: homeName },
         destination_station: { name: destinationName },
+        metro_line: null,
       });
     } else {
       const commuteResult = await getPrimaryCommuteWithStations(userId);

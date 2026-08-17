@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/ui/Icon';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -8,7 +8,7 @@ import { radius, space } from '@/constants/spacing';
 
 export type VerificationKind = 'profile_complete' | 'commute_verified' | 'identity_verified';
 
-const CONFIG: Record<VerificationKind, { label: string; icon: keyof typeof Feather.glyphMap }> = {
+const CONFIG: Record<VerificationKind, { label: string; icon: IconName }> = {
   profile_complete: { label: 'Profile Complete', icon: 'check-circle' },
   commute_verified: { label: 'Commute Verified', icon: 'map-pin' },
   identity_verified: { label: 'Identity Verified', icon: 'shield' },
@@ -23,7 +23,7 @@ export function VerificationBadge({ kind }: { kind: VerificationKind }) {
   const { label, icon } = CONFIG[kind];
   return (
     <View style={styles.wrapper}>
-      <Feather name={icon} size={12} color={colors.success} />
+      <Icon name={icon} size={12} color={colors.success} />
       <Text variant="caption" color="success">
         {label}
       </Text>

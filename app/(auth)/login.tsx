@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
@@ -37,7 +37,7 @@ export default function Login() {
     <ScreenContainer edges={['top', 'bottom']}>
       <View style={{ paddingTop: space.sm }}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Back">
-          <Feather name="chevron-left" size={22} color={colors.textPrimary} />
+          <Icon name="chevron-left" size={22} color={colors.textPrimary} />
         </Pressable>
       </View>
 

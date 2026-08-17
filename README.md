@@ -66,14 +66,17 @@ referral tracking, Dating Lobby opt-in.
 
 Intentionally left as documented setup steps rather than invented (brief
 §82): Google Sign-In needs a native OAuth client ID; final `auth.users`
-deletion needs a service-role server endpoint; AdMob needs a native build
-(not Expo Go) and, for production, real ad unit IDs. All three are called
-out with exact next steps in `docs/SUPABASE_SETUP.md`.
+deletion needs a service-role server endpoint. Called out with exact next
+steps in `docs/SUPABASE_SETUP.md`.
 
-Android-only Truecaller one-tap sign-in is also fully wired (button, client
-service, and a Supabase Edge Function for server-side verification) — see
-[`docs/TRUECALLER_SETUP.md`](docs/TRUECALLER_SETUP.md) for the portal setup,
-two placeholder API endpoints to fill in, and Edge Function deploy steps.
-Note `patches/` is applied automatically via `postinstall` — it fixes a real
-bug in the Truecaller package's New Architecture support and must stay in
-place.
+**Android-only Truecaller one-tap sign-in** is fully wired and deployed —
+button, client service, and a Supabase Edge Function doing real server-side
+verification against Truecaller's actual API. Only a native build is left;
+see [`docs/TRUECALLER_SETUP.md`](docs/TRUECALLER_SETUP.md). Note `patches/`
+is applied automatically via `postinstall` — it fixes a real bug in the
+Truecaller package's New Architecture support and must stay in place.
+
+**AdMob** (banner ads, on Home + Discover) works out of the box in
+development with Google's test IDs. Real IDs are a pure `.env` edit now, no
+code changes — see [`docs/ADMOB_SETUP.md`](docs/ADMOB_SETUP.md). Needs a
+native build either way, not Expo Go.

@@ -2,8 +2,13 @@
 //
 // The client (services/truecallerAuth.ts) gets an authorization code from
 // the Truecaller SDK and sends it here. This function:
-//   1. exchanges that code for a Truecaller access token (using the client
-//      secret, which must never live in the app itself),
+//   1. exchanges that code for a Truecaller access token using PKCE
+//      (client_id + code + code_verifier — no client secret. Truecaller's
+//      own developer console has no secret field anywhere for an Android
+//      credential, only Package Name / Client ID / Fingerprints, which
+//      matches the standard rule that native/mobile OAuth clients are
+//      "public clients" and use PKCE instead of a secret, since a secret
+//      embedded in a distributed app binary can't actually stay secret),
 //   2. fetches the verified phone number from Truecaller,
 //   3. creates the Supabase user if they're new (idempotent — safe to call
 //      every sign-in),
@@ -11,21 +16,22 @@
 //
 // Deploy: `supabase functions deploy truecaller-verify`
 // Secrets (never set as EXPO_PUBLIC_ — these stay server-side only):
-//   supabase secrets set TRUECALLER_CLIENT_ID=... TRUECALLER_CLIENT_SECRET=...
+//   supabase secrets set TRUECALLER_CLIENT_ID=...
+// (Confirmed via Truecaller's own docs — see the endpoints below — that the
+// backend token exchange needs no client secret at all, just client_id +
+// code + code_verifier. TRUECALLER_CLIENT_SECRET stays supported below only
+// in case that ever changes; nothing to set for it currently.)
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are auto-injected by the
 // Supabase platform into every Edge Function — nothing to set for those.
 //
-// ⚠️ TRUECALLER_TOKEN_URL / TRUECALLER_PROFILE_URL below are placeholders —
-// I could not confirm Truecaller's current OAuth token/profile endpoint
-// URLs from public documentation, and would rather leave an honest
-// placeholder than ship a guessed URL. Get the exact values from your
-// Truecaller developer dashboard (Backend/Server-side integration docs)
-// once your app is approved, and fill them in here before deploying.
+// Endpoints confirmed from docs.truecaller.com/truecaller-sdk/android/
+// oauth-sdk-3.0.0/integration-steps/integrating-with-your-backend
+// (fetching-user-token / fetching-user-profile), Aug 2026.
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const TRUECALLER_TOKEN_URL = 'https://REPLACE_ME.truecaller.com/oauth2/token'; // TODO: fill in from Truecaller dashboard
-const TRUECALLER_PROFILE_URL = 'https://REPLACE_ME.truecaller.com/v1/userinfo'; // TODO: fill in from Truecaller dashboard
+const TRUECALLER_TOKEN_URL = 'https://oauth-account-noneu.truecaller.com/v1/token';
+const TRUECALLER_PROFILE_URL = 'https://oauth-account-noneu.truecaller.com/v1/userinfo';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -44,12 +50,12 @@ Deno.serve(async (req) => {
   if (req.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
 
   const clientId = Deno.env.get('TRUECALLER_CLIENT_ID');
-  const clientSecret = Deno.env.get('TRUECALLER_CLIENT_SECRET');
+  const clientSecret = Deno.env.get('TRUECALLER_CLIENT_SECRET'); // optional — see header note
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
 
-  if (!clientId || !clientSecret || !supabaseUrl || !serviceRoleKey || !anonKey) {
+  if (!clientId || !supabaseUrl || !serviceRoleKey || !anonKey) {
     return json({ error: 'server_misconfigured' }, 500);
   }
 
@@ -65,17 +71,22 @@ Deno.serve(async (req) => {
     return json({ error: 'missing_authorization_code_or_code_verifier' }, 400);
   }
 
-  // 1. Exchange the code for a Truecaller access token.
+  // 1. Exchange the code for a Truecaller access token (PKCE: client_id +
+  // code + code_verifier proves this request came from the same app
+  // instance that started the flow — no secret required for a public/
+  // mobile client). client_secret is included only if you've set one.
+  const tokenParams: Record<string, string> = {
+    grant_type: 'authorization_code',
+    client_id: clientId,
+    code: authorizationCode,
+    code_verifier: codeVerifier,
+  };
+  if (clientSecret) tokenParams.client_secret = clientSecret;
+
   const tokenResponse = await fetch(TRUECALLER_TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: clientId,
-      client_secret: clientSecret,
-      code: authorizationCode,
-      code_verifier: codeVerifier,
-    }),
+    body: new URLSearchParams(tokenParams),
   });
 
   if (!tokenResponse.ok) {

@@ -24,6 +24,7 @@ In the Supabase SQL editor, run these in order:
 3. `supabase/migrations/0003_rls.sql`
 4. `supabase/migrations/0004_storage.sql` — creates the public `avatars` bucket and its policies
 5. `supabase/migrations/0005_account_deletion.sql`
+6. `supabase/migrations/0006_metro_network_data.sql` — real cities/lines/stations for Delhi (NCR), Bengaluru, and Kochi, replacing the single placeholder line the first migration shipped with
 
 (Or point the Supabase CLI's `supabase db push` at this `supabase/migrations`
 folder if you have a project linked.)
@@ -60,11 +61,12 @@ Add those two lines to the same `.env`, then:
 npm run seed
 ```
 
-This creates one city (Delhi), one metro system/line, four stations, the
-interest catalog, and six demo commuters (Aarav, Meera, Rohan, Ananya,
-Kabir, Sara — from brief §67) with real auth accounts
-(`aarav@metroconnect.demo` / `MetroConnectDemo123!`, etc.) so discovery,
-connections, and chat all have real rows to work against.
+This looks up Delhi and its real Blue Line (seeded by migration 0006 — run
+that first) and creates the interest catalog plus six demo commuters (Aarav,
+Meera, Rohan, Ananya, Kabir, Sara — from brief §67) riding Rajiv Chowk →
+Dwarka Sector 21, with real auth accounts (`aarav@metroconnect.demo` /
+`MetroConnectDemo123!`, etc.) so discovery, connections, and chat all have
+real rows to work against.
 
 ## 5. Google Sign-In
 
@@ -109,24 +111,7 @@ exists.
 
 ## 7. AdMob
 
-Development always uses Google's official test ad unit IDs
-(`react-native-google-mobile-ads`'s built-in `TestIds`) — see
-`config/ads.ts`. For a real production build, create ad units in your AdMob
-console and set:
-
-```
-EXPO_PUBLIC_APP_ENV=production
-EXPO_PUBLIC_ADMOB_APP_ID=...
-EXPO_PUBLIC_ADMOB_BANNER_ID=...
-EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID=...
-EXPO_PUBLIC_ADMOB_REWARDED_ID=...
-```
-
-You'll also need to replace the placeholder `androidAppId`/`iosAppId` in the
-`react-native-google-mobile-ads` plugin block in `app.json` with your real
-AdMob app IDs before a production build — those two are native manifest
-values Expo bakes in at prebuild time, so they can't come from an env var.
-
-AdMob requires a custom dev client or a full native build
-(`npx expo run:ios` / `npx expo run:android` or an EAS build) — it does not
-work inside Expo Go.
+See [`docs/ADMOB_SETUP.md`](ADMOB_SETUP.md) — App ID and ad unit IDs, both
+now settable purely via `.env` (no code edits needed). Same rule as
+everywhere else: it doesn't work inside Expo Go, needs a dev client or full
+native build.

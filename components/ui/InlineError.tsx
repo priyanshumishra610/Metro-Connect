@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -10,7 +10,7 @@ import { radius, space } from '@/constants/spacing';
 export function InlineError({ message }: { message: string }) {
   return (
     <View style={styles.wrapper}>
-      <Feather name="alert-triangle" size={16} color={colors.warning} />
+      <Icon name="alert-triangle" size={16} color={colors.warning} />
       <Text variant="body" color="textSecondary" style={{ flex: 1 }}>
         {message}
       </Text>

@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/ui/Icon';
 import React, { useEffect, useState } from 'react';
 import { Pressable, Share, StyleSheet, View } from 'react-native';
 
@@ -10,7 +10,7 @@ import { space } from '@/constants/spacing';
 import { useAuth } from '@/hooks/useAuth';
 import { buildReferralLink, buildReferralMessage, getOrCreateReferralCode, recordReferralEvent } from '@/services/referrals';
 
-const CHANNELS: { icon: keyof typeof Feather.glyphMap; label: string }[] = [
+const CHANNELS: { icon: IconName; label: string }[] = [
   { icon: 'message-circle', label: 'WhatsApp' },
   { icon: 'instagram', label: 'Instagram' },
   { icon: 'send', label: 'Telegram' },
@@ -50,7 +50,7 @@ export default function Invite() {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
           {CHANNELS.map((channel) => (
             <Pressable key={channel.label} onPress={share} style={styles.channel} accessibilityRole="button">
-              <Feather name={channel.icon} size={20} color={colors.textPrimary} />
+              <Icon name={channel.icon} size={20} color={colors.textPrimary} />
               <Text variant="small">{channel.label}</Text>
             </Pressable>
           ))}

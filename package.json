@@ -26,7 +26,9 @@
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.2",
     "expo-web-browser": "~57.0.2",
+    "lucide-react-native": "^1.31.0",
     "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-native": "0.86.2",
     "react-native-gesture-handler": "~2.32.0",
     "react-native-google-mobile-ads": "^16.4.0",
@@ -35,6 +37,7 @@
     "react-native-screens": "~4.26.0",
     "react-native-svg": "15.15.4",
     "react-native-url-polyfill": "^4.0.0",
+    "react-native-web": "^0.21.2",
     "react-native-worklets": "0.10.1",
     "zustand": "^5.0.15"
   },
@@ -42,6 +45,8 @@
     "@types/react": "~19.2.2",
     "babel-preset-expo": "^57.0.7",
     "dotenv": "^17.4.2",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~57.0.1",
     "patch-package": "^8.0.1",
     "tsx": "^4.23.12",
     "typescript": "~6.0.3"
@@ -56,5 +61,24 @@
     "seed": "tsx supabase/seed/seed.ts",
     "postinstall": "patch-package"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "@expo/fingerprint": "^0.20.7"
+  },
+  "description": "> Meet the people already riding with you.",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priyanshumishra610/Metro-Connect.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/priyanshumishra610/Metro-Connect/issues"
+  },
+  "homepage": "https://github.com/priyanshumishra610/Metro-Connect#readme"
 }

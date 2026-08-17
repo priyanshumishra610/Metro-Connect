@@ -10,7 +10,7 @@ import { space } from '@/constants/spacing';
 import { useAuth } from '@/hooks/useAuth';
 import { saveCommute } from '@/services/commute';
 import { setUserInterests } from '@/services/interests';
-import { markProfileComplete } from '@/services/profiles';
+import { markProfileComplete, updateProfile } from '@/services/profiles';
 import { recordReferralEvent } from '@/services/referrals';
 import { useOnboardingStore } from '@/store/onboardingStore';
 
@@ -28,13 +28,27 @@ export default function ReadyScreen() {
       return;
     }
 
-    if (!userId || !onboarding.homeStationId || !onboarding.destinationStationId || !onboarding.metroLineId || !onboarding.frequency) {
+    if (
+      !userId ||
+      !onboarding.cityId ||
+      !onboarding.homeStationId ||
+      !onboarding.destinationStationId ||
+      !onboarding.metroLineId ||
+      !onboarding.frequency
+    ) {
       setError('Something went wrong. Try again in a moment.');
       return;
     }
 
     setSaving(true);
     setError(null);
+
+    const profileResult = await updateProfile(userId, { city_id: onboarding.cityId });
+    if (profileResult.error) {
+      setSaving(false);
+      setError(profileResult.error.message);
+      return;
+    }
 
     const commuteResult = await saveCommute(userId, {
       homeStationId: onboarding.homeStationId,
@@ -63,7 +77,7 @@ export default function ReadyScreen() {
   };
 
   return (
-    <OnboardingScaffold step={10} ctaLabel="Let's see who's on my route" ctaLoading={saving} onCta={finish} showBack={false}>
+    <OnboardingScaffold step={11} ctaLabel="Let's see who's on my route" ctaLoading={saving} onCta={finish} showBack={false}>
       <View style={{ alignItems: 'center', gap: space.xl }}>
         <Text variant="display" style={{ textAlign: 'center' }}>You're ready.</Text>
 

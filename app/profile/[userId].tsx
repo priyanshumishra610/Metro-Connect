@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
@@ -93,7 +93,7 @@ export default function PublicProfile() {
     <ScreenContainer edges={['top', 'bottom']} padded={false}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: space.md, paddingTop: space.sm }}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Back">
-          <Feather name="chevron-left" size={22} color={colors.textPrimary} />
+          <Icon name="chevron-left" size={22} color={colors.textPrimary} />
         </Pressable>
         <Pressable
           onPress={() =>
@@ -106,7 +106,7 @@ export default function PublicProfile() {
           hitSlop={10}
           accessibilityLabel="More options"
         >
-          <Feather name="more-horizontal" size={22} color={colors.textPrimary} />
+          <Icon name="more-horizontal" size={22} color={colors.textPrimary} />
         </Pressable>
       </View>
 

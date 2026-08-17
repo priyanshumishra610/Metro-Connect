@@ -57,6 +57,7 @@ export interface Station {
   longitude: number | null;
   sequence_number: number;
   is_active: boolean;
+  interchange_group: string | null;
   created_at: string;
 }
 
@@ -216,6 +217,7 @@ export interface DiscoverCommuterRow {
   same_line: boolean;
   same_home_station: boolean;
   same_destination: boolean;
+  same_interchange: boolean;
   similar_time: boolean;
   shared_interest_count: number;
 }

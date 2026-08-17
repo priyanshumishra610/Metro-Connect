@@ -19,8 +19,15 @@ export const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? ''
  */
 export const HAS_SUPABASE_CONFIG = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
+/**
+ * Ad unit IDs (per-placement — banner is the only one actually rendered
+ * anywhere right now, see components/ads/AdBanner.tsx). The App ID itself
+ * (one per platform, not per-placement) isn't read here — the native
+ * module gets it from the manifest, which app.config.js sets from
+ * EXPO_PUBLIC_ADMOB_ANDROID_APP_ID / EXPO_PUBLIC_ADMOB_IOS_APP_ID at build
+ * time, not from JS at runtime.
+ */
 export const ADMOB = {
-  appId: process.env.EXPO_PUBLIC_ADMOB_APP_ID ?? '',
   bannerId: process.env.EXPO_PUBLIC_ADMOB_BANNER_ID ?? '',
   interstitialId: process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID ?? '',
   rewardedId: process.env.EXPO_PUBLIC_ADMOB_REWARDED_ID ?? '',

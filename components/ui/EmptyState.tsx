@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '@/components/ui/Icon';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -8,7 +8,7 @@ import { colors } from '@/constants/colors';
 import { space } from '@/constants/spacing';
 
 export interface EmptyStateProps {
-  icon?: keyof typeof Feather.glyphMap;
+  icon?: IconName;
   title: string;
   body?: string;
   actionLabel?: string;
@@ -20,7 +20,7 @@ export function EmptyState({ icon = 'compass', title, body, actionLabel, onActio
   return (
     <View style={styles.wrapper}>
       <View style={styles.iconCircle}>
-        <Feather name={icon} size={22} color={colors.textSecondary} />
+        <Icon name={icon} size={22} color={colors.textSecondary} />
       </View>
       <Text variant="h3" style={styles.title}>
         {title}

@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,12 +23,12 @@ export function DemoModeBanner() {
   return (
     <View style={[styles.wrapper, { paddingTop: insets.top + space.xs }]} pointerEvents="box-none">
       <View style={styles.pill}>
-        <Feather name="database" size={12} color={colors.warning} />
+        <Icon name="database" size={12} color={colors.warning} />
         <Text variant="caption" color="textSecondary" style={{ flex: 1 }}>
           Demo mode — Supabase isn't configured, so you're seeing seed data.
         </Text>
         <Pressable onPress={() => setDismissed(true)} hitSlop={8} accessibilityLabel="Dismiss">
-          <Feather name="x" size={14} color={colors.textSecondary} />
+          <Icon name="x" size={14} color={colors.textSecondary} />
         </Pressable>
       </View>
     </View>

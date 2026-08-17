@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -44,14 +44,14 @@ export default function SafetyCenter() {
         <View>
           <Text variant="h3" style={{ marginBottom: space.sm }}>Controls</Text>
           <Pressable style={styles.row} onPress={() => router.push('/safety/blocked')} accessibilityRole="button">
-            <Feather name="user-x" size={18} color={colors.textPrimary} />
+            <Icon name="user-x" size={18} color={colors.textPrimary} />
             <Text variant="bodyMedium" style={{ flex: 1 }}>Blocked people</Text>
-            <Feather name="chevron-right" size={18} color={colors.textSecondary} />
+            <Icon name="chevron-right" size={18} color={colors.textSecondary} />
           </Pressable>
           <Pressable style={styles.row} onPress={() => router.push('/safety/report')} accessibilityRole="button">
-            <Feather name="flag" size={18} color={colors.textPrimary} />
+            <Icon name="flag" size={18} color={colors.textPrimary} />
             <Text variant="bodyMedium" style={{ flex: 1 }}>Report a problem</Text>
-            <Feather name="chevron-right" size={18} color={colors.textSecondary} />
+            <Icon name="chevron-right" size={18} color={colors.textSecondary} />
           </Pressable>
         </View>
 
@@ -60,7 +60,7 @@ export default function SafetyCenter() {
           <Card style={{ gap: space.sm }}>
             {TIPS.map((tip) => (
               <View key={tip} style={{ flexDirection: 'row', gap: space.xs }}>
-                <Feather name="check" size={14} color={colors.success} style={{ marginTop: 3 }} />
+                <Icon name="check" size={14} color={colors.success} style={{ marginTop: 3 }} />
                 <Text variant="small" color="textSecondary" style={{ flex: 1 }}>{tip}</Text>
               </View>
             ))}

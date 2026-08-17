@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
@@ -33,14 +33,14 @@ export default function ForgotPassword() {
     <ScreenContainer edges={['top', 'bottom']}>
       <View style={{ paddingTop: space.sm }}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Back">
-          <Feather name="chevron-left" size={22} color={colors.textPrimary} />
+          <Icon name="chevron-left" size={22} color={colors.textPrimary} />
         </Pressable>
       </View>
 
       <View style={{ flex: 1, paddingTop: space.xl }}>
         {sent ? (
           <View style={{ alignItems: 'center', gap: space.md, paddingTop: space.xxl }}>
-            <Feather name="mail" size={32} color={colors.interactive} />
+            <Icon name="mail" size={32} color={colors.interactive} />
             <Text variant="h2" style={{ textAlign: 'center' }}>Check your inbox</Text>
             <Text variant="body" color="textSecondary" style={{ textAlign: 'center' }}>
               If an account exists for {email}, we've sent a link to reset your password.
