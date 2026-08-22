@@ -1,4 +1,4 @@
-import { HAS_SUPABASE_CONFIG } from '@/config/env';
+import { shouldUseLocalData } from '@/lib/dataMode';
 import { supabase } from '@/lib/supabase';
 import type { ReportCategory, ReportContext } from '@/types/database';
 import { fail, fromSupabaseError, ok, type ServiceResult } from '@/utils/serviceResult';
@@ -13,7 +13,7 @@ export interface ReportInput {
 }
 
 export async function submitReport(input: ReportInput): Promise<ServiceResult<null>> {
-  if (!HAS_SUPABASE_CONFIG) return fail('not_configured');
+  if (shouldUseLocalData()) return fail('guest_blocked');
   if (input.details && input.details.length > 1000) {
     return fail('validation', 'Details need to be 1000 characters or fewer.');
   }

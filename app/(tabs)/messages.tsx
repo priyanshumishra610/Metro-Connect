@@ -10,12 +10,13 @@ import { Text } from '@/components/ui/Text';
 import { colors } from '@/constants/colors';
 import { voice } from '@/constants/copy';
 import { space, tabBarClearance } from '@/constants/spacing';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useGuestGate } from '@/hooks/useAuth';
 import { listConversations, type ConversationSummary } from '@/services/messages';
 
 export default function Messages() {
   const router = useRouter();
-  const { userId } = useAuth();
+  const { userId, isGuest } = useAuth();
+  const { guard } = useGuestGate();
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +45,15 @@ export default function Messages() {
           data={conversations}
           keyExtractor={(item) => item.conversation.id}
           contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: tabBarClearance }}
-          ListEmptyComponent={<EmptyState icon="message-circle" title={voice.emptyMessagesTitle} body={voice.emptyMessagesBody} />}
+          ListEmptyComponent={
+            <EmptyState
+              icon="message-circle"
+              title={isGuest ? 'Messages stay off the demo route.' : voice.emptyMessagesTitle}
+              body={isGuest ? 'Create an account to talk with people you actually ride with.' : voice.emptyMessagesBody}
+              actionLabel={isGuest ? 'Create an account' : undefined}
+              onAction={isGuest ? () => guard('message') : undefined}
+            />
+          }
           renderItem={({ item, index }) => (
             <AnimatedListItem index={index}>
               <Pressable

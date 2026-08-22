@@ -1,6 +1,6 @@
 import { Icon } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import { AdBanner } from '@/components/ads/AdBanner';
@@ -16,25 +16,32 @@ import { Text } from '@/components/ui/Text';
 import { colors } from '@/constants/colors';
 import { voice } from '@/constants/copy';
 import { space, tabBarClearance } from '@/constants/spacing';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useGuestGate } from '@/hooks/useAuth';
 import { useHomeData } from '@/hooks/useHomeData';
 import { requestConnection } from '@/services/connections';
+import { track } from '@/services/analytics';
 import { formatFrequency, formatTime, greetingForNow } from '@/utils/format';
 
 export default function Home() {
   const router = useRouter();
-  const { profile, userId } = useAuth();
+  const { profile, userId, isGuest } = useAuth();
+  const { guard } = useGuestGate();
   const { commute, spotlight, incomingRequests, loading, error, reload } = useHomeData();
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
 
   const onConnect = async () => {
     if (!userId || !spotlight) return;
+    if (!guard('connection')) return;
     setConnecting(true);
     const result = await requestConnection(userId, spotlight.userId);
     setConnecting(false);
     if (!result.error) setConnected(true);
   };
+
+  useEffect(() => {
+    if (isGuest) track('guest_home_viewed');
+  }, [isGuest]);
 
   const firstName = profile?.display_name?.split(' ')[0];
 

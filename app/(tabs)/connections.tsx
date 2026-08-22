@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, View } from 'react-native';
 
+import { PersonCard } from '@/components/discovery/PersonCard';
 import { ConnectionCelebration } from '@/components/connections/ConnectionCelebration';
 import { AnimatedListItem } from '@/components/ui/AnimatedListItem';
 import { Avatar } from '@/components/ui/Avatar';
@@ -12,7 +13,7 @@ import { ScreenContainer } from '@/components/ui/ScreenContainer';
 import { Text } from '@/components/ui/Text';
 import { space, tabBarClearance } from '@/constants/spacing';
 import { voice } from '@/constants/copy';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useGuestGate } from '@/hooks/useAuth';
 import {
   getConversationIdForConnection,
   listAcceptedConnections,
@@ -20,12 +21,15 @@ import {
   respondToConnection,
   type ConnectionWithProfile,
 } from '@/services/connections';
+import { discoverCommuters, type DiscoveredPerson } from '@/services/discovery';
 
 export default function Connections() {
   const router = useRouter();
-  const { userId } = useAuth();
+  const { userId, isGuest } = useAuth();
+  const { guard } = useGuestGate();
   const [incoming, setIncoming] = useState<ConnectionWithProfile[]>([]);
   const [accepted, setAccepted] = useState<ConnectionWithProfile[]>([]);
+  const [guestPeople, setGuestPeople] = useState<DiscoveredPerson[]>([]);
   const [loading, setLoading] = useState(true);
   const [respondingId, setRespondingId] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState<{ name: string; avatarUrl: string | null; conversationId: string | null } | null>(null);
@@ -33,11 +37,19 @@ export default function Connections() {
   const load = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
+    if (isGuest) {
+      const people = await discoverCommuters(userId);
+      setGuestPeople(people.data ?? []);
+      setIncoming([]);
+      setAccepted([]);
+      setLoading(false);
+      return;
+    }
     const [incomingResult, acceptedResult] = await Promise.all([listIncomingRequests(userId), listAcceptedConnections(userId)]);
     setIncoming(incomingResult.data ?? []);
     setAccepted(acceptedResult.data ?? []);
     setLoading(false);
-  }, [userId]);
+  }, [userId, isGuest]);
 
   useEffect(() => {
     load();
@@ -101,11 +113,28 @@ export default function Connections() {
             </View>
           }
           ListEmptyComponent={
-            <EmptyState
-              icon="user-plus"
-              title={voice.emptyConnectionsTitle}
-              body="Once you connect with someone on your route, they'll show up here."
-            />
+            isGuest ? (
+              <View style={{ gap: space.md }}>
+                <Text variant="body" color="textSecondary">
+                  These commuters are on the demo route. Create an account to actually connect.
+                </Text>
+                {guestPeople.map((person, index) => (
+                  <PersonCard
+                    key={person.userId}
+                    person={person}
+                    index={index}
+                    connectLabel="Connect"
+                    onConnect={() => guard('connection')}
+                  />
+                ))}
+              </View>
+            ) : (
+              <EmptyState
+                icon="user-plus"
+                title={voice.emptyConnectionsTitle}
+                body="Once you connect with someone on your route, they'll show up here."
+              />
+            )
           }
           renderItem={({ item, index }) => (
             <AnimatedListItem index={index}>

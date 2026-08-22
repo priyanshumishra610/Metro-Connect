@@ -1,6 +1,6 @@
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
-import { HAS_SUPABASE_CONFIG } from '@/config/env';
+import { shouldUseLocalData } from '@/lib/dataMode';
 import { supabase } from '@/lib/supabase';
 import { track } from '@/services/analytics';
 import type { Conversation, Message, Profile } from '@/types/database';
@@ -14,7 +14,7 @@ export interface ConversationSummary {
 }
 
 export async function listConversations(userId: string): Promise<ServiceResult<ConversationSummary[]>> {
-  if (!HAS_SUPABASE_CONFIG) return ok([]);
+  if (shouldUseLocalData()) return ok([]);
 
   const { data: memberships, error } = await supabase
     .from('conversation_members')
@@ -82,7 +82,7 @@ export interface ConversationContext {
 
 /** Powers the "You both usually commute around 8 AM" header (brief §27) — reinforces why the conversation exists without exposing anything private. */
 export async function getConversationContext(conversationId: string, userId: string): Promise<ServiceResult<ConversationContext | null>> {
-  if (!HAS_SUPABASE_CONFIG) return ok(null);
+  if (shouldUseLocalData()) return ok(null);
 
   const { data: members, error } = await supabase
     .from('conversation_members')
@@ -115,7 +115,7 @@ export async function getConversationContext(conversationId: string, userId: str
 }
 
 export async function listMessages(conversationId: string): Promise<ServiceResult<Message[]>> {
-  if (!HAS_SUPABASE_CONFIG) return ok([]);
+  if (shouldUseLocalData()) return ok([]);
   const { data, error } = await supabase
     .from('messages')
     .select('*')
@@ -128,7 +128,7 @@ export async function listMessages(conversationId: string): Promise<ServiceResul
 }
 
 export async function sendMessage(conversationId: string, senderId: string, body: string): Promise<ServiceResult<Message>> {
-  if (!HAS_SUPABASE_CONFIG) return fail('not_configured');
+  if (shouldUseLocalData()) return fail('guest_blocked', 'Create an account to send messages.');
   const trimmed = body.trim();
   if (!trimmed) return fail('validation', "That message is empty.");
   if (trimmed.length > 2000) return fail('validation', "That message is too long.");
@@ -145,7 +145,7 @@ export async function sendMessage(conversationId: string, senderId: string, body
 }
 
 export async function markConversationRead(conversationId: string, userId: string): Promise<void> {
-  if (!HAS_SUPABASE_CONFIG) return;
+  if (shouldUseLocalData()) return;
   await supabase
     .from('conversation_members')
     .update({ last_read_at: new Date().toISOString() })
@@ -159,7 +159,7 @@ export async function markConversationRead(conversationId: string, userId: strin
  * longer than the screen that asked for it.
  */
 export function subscribeToConversation(conversationId: string, onMessage: (message: Message) => void): { unsubscribe: () => void } {
-  if (!HAS_SUPABASE_CONFIG) return { unsubscribe: () => {} };
+  if (shouldUseLocalData()) return { unsubscribe: () => {} };
 
   const channel: RealtimeChannel = supabase
     .channel(`conversation:${conversationId}`)

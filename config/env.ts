@@ -8,14 +8,42 @@ export const APP_ENV: AppEnv = ['development', 'staging', 'production'].includes
 
 export const IS_DEV = APP_ENV === 'development';
 
-export const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
+/**
+ * Known-bad hostname typo that sent Google OAuth to a dead domain
+ * (`supase.co` instead of `supabase.co`). Always rewrite it. Never hardcode
+ * a typo domain anywhere else in the app.
+ */
+function sanitizeSupabaseUrl(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return '';
+
+  const corrected = trimmed.replace(/supase\.co/gi, 'supabase.co');
+  try {
+    const parsed = new URL(corrected);
+    if (parsed.protocol !== 'https:') return '';
+    const host = parsed.hostname.toLowerCase();
+    if (host.includes('supase')) return '';
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch {
+    return '';
+  }
+}
+
+const rawSupabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
+export const SUPABASE_URL = sanitizeSupabaseUrl(rawSupabaseUrl);
 export const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
+
+if (__DEV__ && rawSupabaseUrl && rawSupabaseUrl !== SUPABASE_URL) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    '[env] EXPO_PUBLIC_SUPABASE_URL was corrected. It must be https://<project-ref>.supabase.co, never a typo host.'
+  );
+}
 
 /**
  * True only when real Supabase credentials are present. Every service in
- * /services checks this before touching the network so the app can boot
- * (and demo) with `.env` unset, per brief §82 — never invent credentials,
- * never claim a live integration that isn't configured.
+ * /services checks this (and guest mode via shouldUseLocalData) before
+ * touching the network.
  */
 export const HAS_SUPABASE_CONFIG = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 

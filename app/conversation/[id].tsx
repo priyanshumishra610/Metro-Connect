@@ -12,7 +12,7 @@ import { TextField } from '@/components/ui/TextField';
 import { colors } from '@/constants/colors';
 import { icebreakers } from '@/constants/copy';
 import { space } from '@/constants/spacing';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useGuestGate } from '@/hooks/useAuth';
 import {
   getConversationContext,
   listMessages,
@@ -27,6 +27,7 @@ export default function ConversationScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { userId } = useAuth();
+  const { guard } = useGuestGate();
 
   const [context, setContext] = useState<ConversationContext | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -53,6 +54,7 @@ export default function ConversationScreen() {
     const body = text ?? draft;
     if (!id || !body.trim()) return;
     if (!userId) return;
+    if (!guard('message')) return;
 
     setSending(true);
     const result = await sendMessage(id, userId, body);

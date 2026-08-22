@@ -1,45 +1,72 @@
 import { Platform } from 'react-native';
 import type { Session } from '@supabase/supabase-js';
 
-import { HAS_SUPABASE_CONFIG } from '@/config/env';
-import { supabase } from '@/lib/supabase';
+import { HAS_SUPABASE_CONFIG, HAS_TRUECALLER_CONFIG } from '@/config/env';
+import { AUTH_COPY } from '@/lib/authErrors';
 import { loadTruecallerModule } from '@/lib/nativeTruecaller';
-import { fail, fromSupabaseError, ok, type ServiceResult } from '@/utils/serviceResult';
+import { supabase } from '@/lib/supabase';
+import { track } from '@/services/analytics';
+import { fail, ok, type ServiceResult } from '@/utils/serviceResult';
+
+export type TruecallerAvailability = 'ready' | 'unavailable' | 'unsupported';
 
 /**
- * Android-only by design (per product decision) — Truecaller's iOS SDK is
- * far more limited, so iOS keeps Google/email as its only sign-in paths.
- * Every native call here is individually try/caught on top of the already-
- * guarded loadTruecallerModule() (see lib/nativeTruecaller.ts) — that file
- * explains a real bug found in this package's New Architecture code path
- * that couldn't be verified without a physical device.
+ * Android-only. Truecaller's iOS SDK is too limited, so iOS keeps
+ * Google / Phone / Guest. Usability is checked before any SDK UI.
  */
-export function isTruecallerAvailable(): boolean {
-  return Platform.OS === 'android' && loadTruecallerModule() !== null;
+export function isTruecallerOffered(): boolean {
+  return Platform.OS === 'android' && HAS_TRUECALLER_CONFIG;
 }
 
-export async function signInWithTruecaller(): Promise<ServiceResult<Session>> {
-  if (!HAS_SUPABASE_CONFIG) return fail('not_configured');
+export async function getTruecallerAvailability(): Promise<TruecallerAvailability> {
+  if (Platform.OS !== 'android') return 'unsupported';
+  const mod = loadTruecallerModule();
+  if (!mod) return 'unavailable';
+  try {
+    const usable = await mod.trueCallerService.isUsable();
+    return usable ? 'ready' : 'unavailable';
+  } catch {
+    return 'unavailable';
+  }
+}
+
+export async function signInWithTruecaller(): Promise<ServiceResult<Session | { unavailable: true }>> {
+  if (!HAS_SUPABASE_CONFIG) return fail('not_configured', AUTH_COPY.connectingTrouble);
+
+  track('truecaller_started');
+  track('auth_started', { method: 'truecaller' });
+
+  const availability = await getTruecallerAvailability();
+  if (availability !== 'ready') {
+    track('truecaller_unavailable');
+    track('truecaller_fallback_shown');
+    return ok({ unavailable: true });
+  }
 
   const mod = loadTruecallerModule();
-  if (!mod) return fail('not_configured', 'Truecaller sign-in is unavailable on this build.');
+  if (!mod) {
+    track('truecaller_unavailable');
+    track('truecaller_fallback_shown');
+    return ok({ unavailable: true });
+  }
 
   let oauthData: { authorizationCode: string; codeVerifier: string };
   try {
-    const usable = await mod.trueCallerService.isUsable();
-    if (!usable) return fail('validation', 'Truecaller is not usable on this device — is the app installed?');
-
     const result = await mod.trueCallerService.authenticate(['profile', 'phone']);
     oauthData = { authorizationCode: result.authorizationCode, codeVerifier: result.codeVerifier };
-  } catch (error) {
-    return fail('server_error', 'Truecaller sign-in failed. Try email or Google instead.', error);
+  } catch {
+    track('truecaller_failed', { reason: 'sdk' });
+    track('auth_failed', { method: 'truecaller' });
+    return fail('server_error', AUTH_COPY.truecallerFailed);
   }
 
   const { data: fnData, error: fnError } = await supabase.functions.invoke('truecaller-verify', {
     body: oauthData,
   });
   if (fnError || !fnData?.access_token || !fnData?.refresh_token) {
-    return fail('server_error', "Couldn't verify your number. Try email or Google instead.", fnError);
+    track('truecaller_failed', { reason: 'verify' });
+    track('auth_failed', { method: 'truecaller' });
+    return fail('server_error', AUTH_COPY.truecallerFailed);
   }
 
   const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
@@ -47,8 +74,12 @@ export async function signInWithTruecaller(): Promise<ServiceResult<Session>> {
     refresh_token: fnData.refresh_token,
   });
   if (sessionError || !sessionData.session) {
-    return fail(fromSupabaseError(sessionError).kind, sessionError?.message);
+    track('truecaller_failed', { reason: 'session' });
+    track('auth_failed', { method: 'truecaller' });
+    return fail('server_error', AUTH_COPY.truecallerFailed);
   }
 
+  track('truecaller_succeeded');
+  track('auth_succeeded', { method: 'truecaller' });
   return ok(sessionData.session);
 }

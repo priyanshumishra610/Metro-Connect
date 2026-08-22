@@ -57,6 +57,7 @@ const baseConfig = {
     'expo-router',
     'expo-font',
     'expo-secure-store',
+    'expo-updates',
     [
       'expo-splash-screen',
       {
@@ -104,6 +105,16 @@ const baseConfig = {
     eas: {
       projectId: 'def8ecfb-0854-4666-87b8-060505d2ef7e',
     },
+    criticalUpdate: false,
+  },
+  runtimeVersion: {
+    policy: 'appVersion',
+  },
+  updates: {
+    url: 'https://u.expo.dev/def8ecfb-0854-4666-87b8-060505d2ef7e',
+    enabled: true,
+    checkAutomatically: 'NEVER',
+    fallbackToCacheTimeout: 0,
   },
 };
 

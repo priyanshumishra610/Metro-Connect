@@ -2,8 +2,7 @@ import { voice } from '@/constants/copy';
 
 /**
  * Every /services function returns this shape instead of throwing. Screens
- * branch on `error.kind`, never on a raw Postgres/network error string —
- * brief §61: users see "Something went wrong," never a database error.
+ * branch on `error.kind`, never on a raw Postgres/network error string.
  */
 export type ServiceErrorKind =
   | 'offline'
@@ -12,7 +11,9 @@ export type ServiceErrorKind =
   | 'validation'
   | 'rate_limited'
   | 'not_configured'
-  | 'server_error';
+  | 'server_error'
+  | 'cancelled'
+  | 'guest_blocked';
 
 export interface ServiceError {
   kind: ServiceErrorKind;
@@ -41,7 +42,11 @@ function defaultMessage(kind: ServiceErrorKind): string {
     case 'rate_limited':
       return voice.rateLimited;
     case 'not_configured':
-      return 'This feature needs Supabase to be configured. See .env.example.';
+      return "We're having trouble connecting.";
+    case 'cancelled':
+      return 'Sign-in was cancelled.';
+    case 'guest_blocked':
+      return 'Create an account to keep going.';
     case 'validation':
     case 'server_error':
     default:

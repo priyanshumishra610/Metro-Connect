@@ -1,4 +1,4 @@
-import { HAS_SUPABASE_CONFIG } from '@/config/env';
+import { shouldUseLocalData } from '@/lib/dataMode';
 import { supabase } from '@/lib/supabase';
 import { track } from '@/services/analytics';
 import { signOut } from '@/services/auth';
@@ -16,7 +16,7 @@ import { fail, fromSupabaseError, ok, type ServiceResult } from '@/utils/service
  *     docs/SUPABASE_SETUP.md.
  */
 export async function deleteAccount(): Promise<ServiceResult<null>> {
-  if (!HAS_SUPABASE_CONFIG) return fail('not_configured');
+  if (shouldUseLocalData()) return fail('guest_blocked', 'Account deletion needs a real account.');
 
   const { error } = await supabase.rpc('anonymize_own_account');
   if (error) return fail(fromSupabaseError(error).kind, error.message);

@@ -4,13 +4,14 @@ import React from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ScreenContainer } from '@/components/ui/ScreenContainer';
 import { Text } from '@/components/ui/Text';
 import { VerificationBadge } from '@/components/ui/VerificationBadge';
 import { colors } from '@/constants/colors';
 import { space, tabBarClearance } from '@/constants/spacing';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useGuestGate } from '@/hooks/useAuth';
 
 const MENU_ITEMS: { icon: IconName; label: string; href: string }[] = [
   { icon: 'edit-2', label: 'Edit profile', href: '/settings/edit-profile' },
@@ -22,7 +23,8 @@ const MENU_ITEMS: { icon: IconName; label: string; href: string }[] = [
 
 export default function Profile() {
   const router = useRouter();
-  const { profile, isDemoMode } = useAuth();
+  const { profile, isGuest } = useAuth();
+  const { open } = useGuestGate();
 
   return (
     <ScreenContainer edges={['top']} padded={false}>
@@ -55,10 +57,16 @@ export default function Profile() {
         </View>
 
         <View style={{ gap: space.xs }}>
-          {MENU_ITEMS.map((item) => (
+          {MENU_ITEMS.filter((item) => !(isGuest && item.href === '/dating-lobby')).map((item) => (
             <Pressable
               key={item.href}
-              onPress={() => router.push(item.href as never)}
+              onPress={() => {
+                if (isGuest && item.href === '/settings/edit-profile') {
+                  open('profile');
+                  return;
+                }
+                router.push(item.href as never);
+              }}
               style={styles.menuRow}
               accessibilityRole="button"
             >
@@ -69,10 +77,13 @@ export default function Profile() {
           ))}
         </View>
 
-        {isDemoMode && (
-          <Text variant="caption" color="textSecondary" style={{ textAlign: 'center', marginTop: space.lg }}>
-            You're browsing a local demo. Connect Supabase to create a real account.
-          </Text>
+        {isGuest && (
+          <View style={{ marginTop: space.lg, gap: space.sm }}>
+            <Text variant="caption" color="textSecondary" style={{ textAlign: 'center' }}>
+              {`You're exploring in guest mode. Sample commuters are demo only.`}
+            </Text>
+            <Button label="Create an account" onPress={() => open('profile')} fullWidth />
+          </View>
         )}
       </ScrollView>
     </ScreenContainer>

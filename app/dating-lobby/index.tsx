@@ -12,13 +12,14 @@ import { ScreenContainer } from '@/components/ui/ScreenContainer';
 import { Text } from '@/components/ui/Text';
 import { colors } from '@/constants/colors';
 import { space } from '@/constants/spacing';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useGuestGate } from '@/hooks/useAuth';
 import { getDatingPreferences, leaveDatingLobby, optIntoDatingLobby } from '@/services/dating';
 import { discoverDatingLobby, type DatingProspect } from '@/services/discovery';
 
 export default function DatingLobby() {
   const router = useRouter();
-  const { userId } = useAuth();
+  const { userId, isGuest } = useAuth();
+  const { open } = useGuestGate();
   const [optedIn, setOptedIn] = useState<boolean | null>(null);
   const [prospects, setProspects] = useState<DatingProspect[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,8 +40,13 @@ export default function DatingLobby() {
   }, [userId]);
 
   useEffect(() => {
+    if (isGuest) {
+      open('dating');
+      setLoading(false);
+      return;
+    }
     load();
-  }, [load]);
+  }, [load, isGuest, open]);
 
   const onOptIn = async () => {
     if (!userId) return;
@@ -67,7 +73,16 @@ export default function DatingLobby() {
         <Text variant="h2">Dating Lobby</Text>
       </View>
 
-      {loading ? (
+      {isGuest ? (
+        <View style={{ gap: space.md }}>
+          <Icon name="heart" size={28} color={colors.dating} />
+          <Text variant="h3">Dating Lobby stays off the demo route.</Text>
+          <Text variant="body" color="textSecondary">
+            Create an account to opt in. Nobody sees you here unless you turn it on.
+          </Text>
+          <Button label="Create an account" onPress={() => open('dating')} fullWidth />
+        </View>
+      ) : loading ? (
         <ActivityIndicator style={{ marginTop: space.xl }} />
       ) : !optedIn ? (
         <View style={{ gap: space.md }}>

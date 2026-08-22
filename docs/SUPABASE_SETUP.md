@@ -24,7 +24,7 @@ In the Supabase SQL editor, run these in order:
 3. `supabase/migrations/0003_rls.sql`
 4. `supabase/migrations/0004_storage.sql` — creates the public `avatars` bucket and its policies
 5. `supabase/migrations/0005_account_deletion.sql`
-6. `supabase/migrations/0006_metro_network_data.sql` — real cities/lines/stations for Delhi (NCR), Bengaluru, and Kochi, replacing the single placeholder line the first migration shipped with
+7. `supabase/migrations/0007_guest_isolation.sql` — revokes `anon` on private tables so guests cannot query production users
 
 (Or point the Supabase CLI's `supabase db push` at this `supabase/migrations`
 folder if you have a project linked.)
@@ -71,33 +71,52 @@ real rows to work against.
 ## 5. Google Sign-In
 
 `services/auth.ts` → `signInWithGoogleOAuth()` and the "Continue with
-Google" button on the Welcome/Login/Signup screens are fully wired in code
-— what's left is a one-time credential setup in two dashboards. No native
-Google SDK is used (it's Supabase's hosted OAuth flow via
-`expo-web-browser`), so this works in Expo Go as well as a dev
-client/production build.
+Google" button are fully wired. Google client secrets stay in the Supabase
+dashboard, never in the app.
 
-**a. Google Cloud Console** (console.cloud.google.com → APIs & Services →
-Credentials):
-1. Create an OAuth 2.0 Client ID (type: **Web application** — yes, even
-   though this is a mobile app; Supabase is the actual OAuth client Google
-   talks to).
-2. Authorized redirect URI: `https://oofpefsqpjhsxemntrnn.supabase.co/auth/v1/callback`
-3. Note the generated Client ID and Client Secret.
+The app reads `EXPO_PUBLIC_SUPABASE_URL` and rewrites the known typo host
+`supase.co` → `supabase.co`. The value must still be your real project URL:
+
+`https://oofpefsqpjhsxemntrnn.supabase.co`
+
+**a. Google Cloud Console** (APIs & Services → Credentials):
+1. Create an OAuth 2.0 Client ID (type: **Web application**. Supabase is the
+   OAuth client Google talks to).
+2. Authorized redirect URI:
+   `https://oofpefsqpjhsxemntrnn.supabase.co/auth/v1/callback`
+   (must be `supabase.co`, never `supase.co`)
+3. Note the Client ID and Client Secret.
 
 **b. Supabase Dashboard** (Authentication → Providers → Google):
-1. Enable Google, paste in the Client ID and Client Secret from above.
-2. Authentication → URL Configuration → Redirect URLs: add
-   `metroconnect://auth-callback` for dev-client/production builds. For
-   testing in Expo Go, also add a wildcard for the Expo proxy domain
-   (`exp://*`) — Expo Go's redirect URL changes with your dev session, so
-   this is the only way it stays whitelisted; a dev client or production
-   build doesn't have this problem since `metroconnect://auth-callback` is
-   fixed.
+1. Enable Google, paste the Client ID and Client Secret.
+2. Authentication → URL Configuration:
+   - Site URL: `metroconnect://auth-callback`
+   - Additional Redirect URLs (add all of these):
+     - `metroconnect://auth-callback`
+     - `metroconnect://reset-password`
+     - `exp://127.0.0.1:8081/--/auth-callback` (Expo Go on simulator)
+     - `exp://*` only if you must test Google inside Expo Go (the proxy
+       URL changes per session)
 
-Nothing else to change in the app — `makeRedirectUri({ path: 'auth-callback' })`
-in `services/auth.ts` already resolves to the right URL for whichever
-environment it's running in.
+The redirect scheme is read from `app.config.js` (`scheme: 'metroconnect'`),
+not from a copied example.
+
+If Google sign-in fails, the app shows "Google couldn't sign you in right
+now." with Try again / Use another method. Guest mode still works if Auth
+is down.
+
+## 5b. Phone OTP
+
+Authentication → Providers → Phone: enable SMS. Configure an SMS provider
+(Twilio/MessageBird/etc.) in the dashboard. The app never reveals whether a
+number is already registered. Resend uses a 60s cooldown.
+
+## 5c. Guest mode and RLS
+
+Guests have no JWT. They only see the local demo dataset. Migration
+`0007_guest_isolation.sql` revokes `anon` on private tables. Apply it after
+the project is running (`supabase db push` or the SQL editor). Do not copy
+guest demo rows onto a real account after signup.
 
 ## 6. Account deletion — the missing half
 

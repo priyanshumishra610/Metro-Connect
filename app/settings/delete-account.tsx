@@ -23,7 +23,7 @@ export default function DeleteAccount() {
   const canDelete = confirmText.trim().toUpperCase() === 'DELETE';
 
   const onDelete = async () => {
-    if (isDemoMode) return setError("Account deletion needs a real account — there's nothing to delete in demo mode.");
+    if (isDemoMode) return setError('Account deletion needs a real account.');
     setLoading(true);
     setError(null);
     const result = await deleteAccount();

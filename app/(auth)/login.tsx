@@ -1,25 +1,33 @@
-import { Icon } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 
+import { AuthProviderButton } from '@/components/auth/AuthProviderButton';
+import { GoogleFailureCard } from '@/components/auth/GoogleFailureCard';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { TruecallerFallbackSheet } from '@/components/auth/TruecallerFallbackSheet';
 import { TruecallerSignInButton } from '@/components/auth/TruecallerSignInButton';
 import { Button } from '@/components/ui/Button';
+import { Icon } from '@/components/ui/Icon';
 import { InlineError } from '@/components/ui/InlineError';
 import { ScreenContainer } from '@/components/ui/ScreenContainer';
 import { Text } from '@/components/ui/Text';
 import { TextField } from '@/components/ui/TextField';
 import { colors } from '@/constants/colors';
 import { space } from '@/constants/spacing';
-import { signInWithEmail } from '@/services/auth';
+import { track } from '@/services/analytics';
+import { signInWithEmail, signInWithGoogleOAuth } from '@/services/auth';
+import { useAuthStore } from '@/store/authStore';
 
 export default function Login() {
   const router = useRouter();
+  const enterGuest = useAuthStore((s) => s.enterGuest);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [googleFailed, setGoogleFailed] = useState(false);
+  const [truecallerFallback, setTruecallerFallback] = useState(false);
 
   const onSubmit = async () => {
     setError(null);
@@ -30,7 +38,13 @@ export default function Login() {
     const result = await signInWithEmail(email.trim(), password);
     setLoading(false);
     if (result.error) setError(result.error.message);
-    // Successful sign-in flips the auth store via onAuthStateChange, and app/index.tsx redirects.
+  };
+
+  const runGoogle = async () => {
+    setGoogleFailed(false);
+    const result = await signInWithGoogleOAuth();
+    if (result.error?.kind === 'cancelled') return;
+    if (result.error) setGoogleFailed(true);
   };
 
   return (
@@ -45,7 +59,7 @@ export default function Login() {
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingTop: space.xl }} keyboardShouldPersistTaps="handled">
           <Text variant="h1" style={{ marginBottom: space.xs }}>Welcome back.</Text>
           <Text variant="body" color="textSecondary" style={{ marginBottom: space.xl }}>
-            Sign in to see who's on your route today.
+            Sign in to see who is on your route today.
           </Text>
 
           <TextField
@@ -71,6 +85,9 @@ export default function Login() {
           </Pressable>
 
           {error && <InlineError message={error} />}
+          {googleFailed && (
+            <GoogleFailureCard onRetry={runGoogle} onDismiss={() => setGoogleFailed(false)} />
+          )}
 
           <View style={{ height: space.md }} />
           <Button label="Sign in" onPress={onSubmit} loading={loading} fullWidth />
@@ -82,11 +99,26 @@ export default function Login() {
           </View>
 
           <View style={{ gap: space.sm }}>
-            <TruecallerSignInButton onError={setError} />
-            <GoogleSignInButton onError={setError} />
+            <TruecallerSignInButton onError={() => setTruecallerFallback(true)} onUnavailable={() => setTruecallerFallback(true)} />
+            <GoogleSignInButton onError={() => setGoogleFailed(true)} />
+            <AuthProviderButton label="Continue with Phone" icon="phone" onPress={() => router.push('/(auth)/phone' as never)} />
+            <AuthProviderButton
+              label="Continue as Guest"
+              icon="user"
+              onPress={async () => {
+                track('guest_started');
+                await enterGuest();
+              }}
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <TruecallerFallbackSheet
+        visible={truecallerFallback}
+        onClose={() => setTruecallerFallback(false)}
+        onGoogle={runGoogle}
+      />
     </ScreenContainer>
   );
 }

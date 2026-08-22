@@ -1,4 +1,4 @@
-import { HAS_SUPABASE_CONFIG } from '@/config/env';
+import { shouldUseLocalData } from '@/lib/dataMode';
 import { supabase } from '@/lib/supabase';
 import { DEMO_LINE, DEMO_STATIONS } from '@/services/demoData';
 import type { MetroLine, Station } from '@/types/database';
@@ -8,7 +8,7 @@ import { fail, fromSupabaseError, ok, type ServiceResult } from '@/utils/service
 export type StationWithLine = Station & { metro_lines: { name: string; color_hex: string } | null };
 
 export async function listStationsForCity(cityId: string): Promise<ServiceResult<StationWithLine[]>> {
-  if (!HAS_SUPABASE_CONFIG) return ok(DEMO_STATIONS.map((s) => ({ ...s, metro_lines: { name: DEMO_LINE.name, color_hex: DEMO_LINE.color_hex } })));
+  if (shouldUseLocalData()) return ok(DEMO_STATIONS.map((s) => ({ ...s, metro_lines: { name: DEMO_LINE.name, color_hex: DEMO_LINE.color_hex } })));
 
   const { data, error } = await supabase
     .from('stations')
@@ -22,7 +22,7 @@ export async function listStationsForCity(cityId: string): Promise<ServiceResult
 }
 
 export async function searchStations(query: string, cityId?: string): Promise<ServiceResult<StationWithLine[]>> {
-  if (!HAS_SUPABASE_CONFIG) {
+  if (shouldUseLocalData()) {
     const q = query.trim().toLowerCase();
     const matches = q ? DEMO_STATIONS.filter((s) => s.name.toLowerCase().includes(q)) : DEMO_STATIONS;
     return ok(matches.map((s) => ({ ...s, metro_lines: { name: DEMO_LINE.name, color_hex: DEMO_LINE.color_hex } })));
@@ -37,7 +37,7 @@ export async function searchStations(query: string, cityId?: string): Promise<Se
 }
 
 export async function listMetroLines(cityId: string): Promise<ServiceResult<MetroLine[]>> {
-  if (!HAS_SUPABASE_CONFIG) return ok([{ ...DEMO_LINE, metro_system_id: 'demo-system', created_at: '' }]);
+  if (shouldUseLocalData()) return ok([{ ...DEMO_LINE, metro_system_id: 'demo-system', created_at: '' }]);
 
   const { data, error } = await supabase
     .from('metro_lines')

@@ -25,8 +25,9 @@ Android-primary (Truecaller's iOS SDK is far more limited).
 
 ## What's in the code
 
-- `components/auth/TruecallerSignInButton.tsx` — renders only on Android,
-  and only when the native module actually loaded.
+- `components/auth/TruecallerSignInButton.tsx` — Android only, and only
+  when `EXPO_PUBLIC_TRUECALLER_CLIENT_ID` is set. Usability is checked
+  before the SDK UI.
 - `services/truecallerAuth.ts` — calls the Truecaller SDK, then hands the
   result to the Edge Function to verify and mint a Supabase session.
 - `supabase/functions/truecaller-verify/index.ts` — exchanges the code,
@@ -62,13 +63,23 @@ Truecaller app installed and signed in.
 
 ## If something doesn't work
 
-Email and Google sign-in both work independently of all of this —
-Truecaller is additive, never blocking. If the native build surfaces an
-issue: the button simply won't render at all if the native module or
-`EXPO_PUBLIC_TRUECALLER_CLIENT_ID` aren't present
-(`isTruecallerAvailable()` in `services/truecallerAuth.ts`); if it renders
-but the flow fails partway, check the Edge Function logs at
-`supabase functions logs truecaller-verify` — every failure mode returns a
-distinct `error` code (`truecaller_token_exchange_failed`,
-`truecaller_profile_fetch_failed`, `user_create_failed`,
-`session_mint_failed`, etc.) that pinpoints exactly which step broke.
+Email, Google, Phone, and Guest all work independently of Truecaller.
+Truecaller is additive, never blocking. On Android the button is shown when
+`EXPO_PUBLIC_TRUECALLER_CLIENT_ID` is set. Before any SDK UI, the app calls
+`isUsable()`. If Truecaller is missing, the SDK fails, or credentials are
+debug/release mismatched, the user sees:
+
+> Truecaller isn't available on this device.
+> You can still join Get Along using another method.
+
+with Phone, Google, and Guest. They never get stuck on
+"Truecaller is not usable on this device - is the app installed?"
+
+If the flow fails after a usable SDK: check Edge Function logs
+(`supabase functions logs truecaller-verify`). Failure codes
+(`truecaller_token_exchange_failed`, `truecaller_profile_fetch_failed`,
+`user_create_failed`, `session_mint_failed`) pinpoint the step.
+
+Do not mix debug and release SHA-1 / Client IDs. Register both fingerprints
+in the Truecaller console if you ship both a debug dev-client and a release
+store build. Min SDK and package name must stay `com.metroconnect.app`.

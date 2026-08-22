@@ -34,6 +34,14 @@ export const voice = {
   networkTimeout: 'That took too long. Check your connection and try again.',
   unauthorized: 'Your session expired. Sign in again to continue.',
   rateLimited: "You're doing that a bit too fast. Give it a minute.",
+  guestConversion: {
+    connection: 'Create an account to connect with people on your route.',
+    message: 'Create an account to send messages.',
+    dating: 'Dating Lobby is only available with a real account.',
+    community: 'Join real Interest Circles after you create an account.',
+    profile: 'A permanent profile needs an account.',
+    default: 'Create an account to keep going.',
+  },
 } as const;
 
 export const icebreakers = [

@@ -1,12 +1,12 @@
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
-import { HAS_SUPABASE_CONFIG } from '@/config/env';
+import { shouldUseLocalData } from '@/lib/dataMode';
 import { supabase } from '@/lib/supabase';
 import type { AppNotification } from '@/types/database';
 import { fail, fromSupabaseError, ok, type ServiceResult } from '@/utils/serviceResult';
 
 export async function listNotifications(userId: string): Promise<ServiceResult<AppNotification[]>> {
-  if (!HAS_SUPABASE_CONFIG) return ok([]);
+  if (shouldUseLocalData()) return ok([]);
   const { data, error } = await supabase
     .from('notifications')
     .select('*')
@@ -19,12 +19,12 @@ export async function listNotifications(userId: string): Promise<ServiceResult<A
 }
 
 export async function markNotificationRead(id: string): Promise<void> {
-  if (!HAS_SUPABASE_CONFIG) return;
+  if (shouldUseLocalData()) return;
   await supabase.from('notifications').update({ is_read: true }).eq('id', id);
 }
 
 export async function unreadNotificationCount(userId: string): Promise<number> {
-  if (!HAS_SUPABASE_CONFIG) return 0;
+  if (shouldUseLocalData()) return 0;
   const { count } = await supabase
     .from('notifications')
     .select('id', { count: 'exact', head: true })
@@ -34,7 +34,7 @@ export async function unreadNotificationCount(userId: string): Promise<number> {
 }
 
 export function subscribeToNotifications(userId: string, onNotification: (n: AppNotification) => void): { unsubscribe: () => void } {
-  if (!HAS_SUPABASE_CONFIG) return { unsubscribe: () => {} };
+  if (shouldUseLocalData()) return { unsubscribe: () => {} };
 
   const channel: RealtimeChannel = supabase
     .channel(`notifications:${userId}`)

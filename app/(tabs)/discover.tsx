@@ -11,10 +11,11 @@ import { ScreenContainer } from '@/components/ui/ScreenContainer';
 import { Text } from '@/components/ui/Text';
 import { relevanceReasons, voice } from '@/constants/copy';
 import { space, tabBarClearance } from '@/constants/spacing';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useGuestGate } from '@/hooks/useAuth';
 import { listCommunitiesForCity, type CommunityWithCount } from '@/services/communities';
 import { requestConnection } from '@/services/connections';
 import { discoverCommuters, type DiscoveredPerson } from '@/services/discovery';
+import { track } from '@/services/analytics';
 
 type Segment = 'for_you' | 'your_route' | 'circles' | 'professional' | 'dating';
 
@@ -28,7 +29,8 @@ const SEGMENTS: { key: Segment; label: string }[] = [
 
 export default function Discover() {
   const router = useRouter();
-  const { userId, profile } = useAuth();
+  const { userId, profile, isGuest } = useAuth();
+  const { guard } = useGuestGate();
   const [segment, setSegment] = useState<Segment>('for_you');
   const [people, setPeople] = useState<DiscoveredPerson[]>([]);
   const [communities, setCommunities] = useState<CommunityWithCount[]>([]);
@@ -36,12 +38,6 @@ export default function Discover() {
   const [connectedIds, setConnectedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (segment === 'dating') {
-      router.push('/dating-lobby');
-      setSegment('for_you');
-      return;
-    }
-
     if (!userId) return;
     setLoading(true);
 
@@ -68,10 +64,15 @@ export default function Discover() {
       setPeople(filtered);
       setLoading(false);
     });
-  }, [segment, userId, profile?.city_id, router]);
+  }, [segment, userId, profile?.city_id]);
+
+  useEffect(() => {
+    if (isGuest) track('guest_discovery_viewed');
+  }, [isGuest]);
 
   const onConnect = async (personId: string) => {
     if (!userId) return;
+    if (!guard('connection')) return;
     const result = await requestConnection(userId, personId);
     if (!result.error) setConnectedIds((prev) => new Set(prev).add(personId));
   };
@@ -80,7 +81,19 @@ export default function Discover() {
     <ScreenContainer edges={['top']} padded={false}>
       <View style={{ paddingHorizontal: space.md }}>
         <Text variant="h1" style={{ marginBottom: space.xs }}>Discover</Text>
-        <SegmentedControl segments={SEGMENTS} selected={segment} onSelect={(key) => setSegment(key as Segment)} />
+        <SegmentedControl
+          segments={SEGMENTS}
+          selected={segment}
+          onSelect={(key) => {
+            const next = key as Segment;
+            if (next === 'dating') {
+              if (!guard('dating')) return;
+              router.push('/dating-lobby');
+              return;
+            }
+            setSegment(next);
+          }}
+        />
       </View>
 
       {loading ? (
@@ -93,12 +106,18 @@ export default function Discover() {
           ListEmptyComponent={<EmptyState icon="hash" title="No circles here yet." body="Interest circles form as more commuters on your route join." />}
           renderItem={({ item }) => (
             <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
-              <View style={{ flex: 1 }}>
+              <Pressable
+                onPress={() => {
+                  if (isGuest) guard('community');
+                }}
+                style={{ flex: 1 }}
+                accessibilityRole="button"
+              >
                 <Text variant="bodySemiBold">{item.name}</Text>
                 <Text variant="small" color="textSecondary">
                   {item.member_count} commuter{item.member_count === 1 ? '' : 's'} on nearby routes
                 </Text>
-              </View>
+              </Pressable>
             </Card>
           )}
         />

@@ -20,11 +20,11 @@ npm install
 npx expo start
 ```
 
-Without a `.env`, the app boots straight into a **demo mode** — every screen
-is fully navigable against realistic seed data (see the "Demo mode" banner),
-so you can review onboarding, discovery, chat, and the rest before wiring up
-a real backend. To connect a real Supabase project, follow
-[`docs/SUPABASE_SETUP.md`](docs/SUPABASE_SETUP.md).
+Without a `.env`, the app opens on the sign-in screen. **Continue as Guest**
+loads an isolated demo dataset (Aarav, Meera, Rohan, Ananya, Kabir, Sara)
+and never queries production users. To connect a real Supabase project, follow
+[`docs/SUPABASE_SETUP.md`](docs/SUPABASE_SETUP.md). Over-the-air JS updates:
+[`docs/OTA.md`](docs/OTA.md).
 
 ## Project structure
 
@@ -58,16 +58,17 @@ commuter reveal) — never a default heading face.
 
 ## What's real vs. scaffolded
 
-Real and working end-to-end once Supabase is configured: auth (email +
-password, session persistence, password reset, account deletion), onboarding
-→ commute + interests, discovery (server-side relevance via Postgres
-functions, RLS-enforced), connections, realtime chat, blocking, reporting,
-referral tracking, Dating Lobby opt-in.
+Real and working end-to-end once Supabase is configured: auth (Google, phone
+OTP, email, Truecaller on Android, guest explore), session persistence,
+password reset, account deletion, onboarding → commute + interests, discovery
+(server-side relevance via Postgres functions, RLS-enforced), connections,
+realtime chat, blocking, reporting, referral tracking, Dating Lobby opt-in.
 
-Intentionally left as documented setup steps rather than invented (brief
-§82): Google Sign-In needs a native OAuth client ID; final `auth.users`
-deletion needs a service-role server endpoint. Called out with exact next
-steps in `docs/SUPABASE_SETUP.md`.
+Dashboard steps that cannot live in code (Google Cloud OAuth client, Supabase
+redirect URLs, Truecaller SHA-1) are in `docs/SUPABASE_SETUP.md` and
+`docs/TRUECALLER_SETUP.md`. Native binary changes (Truecaller, AdMob App IDs,
+new native modules) need a new EAS build; JS-only work can ship over
+[`docs/OTA.md`](docs/OTA.md).
 
 **Android-only Truecaller one-tap sign-in** is fully wired and deployed —
 button, client service, and a Supabase Edge Function doing real server-side

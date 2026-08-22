@@ -1,5 +1,5 @@
 import { relevanceReasons } from '@/constants/copy';
-import { HAS_SUPABASE_CONFIG } from '@/config/env';
+import { shouldUseLocalData } from '@/lib/dataMode';
 import { supabase } from '@/lib/supabase';
 import { demoDiscoverRows } from '@/services/demoData';
 import type { DiscoverCommuterRow, DiscoverDatingRow } from '@/types/database';
@@ -45,7 +45,7 @@ function toDiscoveredPerson(row: DiscoverCommuterRow): DiscoveredPerson {
 
 /** People whose commute genuinely overlaps yours — the default "For You" / "Your Route" feed. Always bounded and paginated (brief §66). */
 export async function discoverCommuters(userId: string, page = 0): Promise<ServiceResult<DiscoveredPerson[]>> {
-  if (!HAS_SUPABASE_CONFIG) return ok(demoDiscoverRows().map(toDiscoveredPerson));
+  if (shouldUseLocalData()) return ok(demoDiscoverRows().map(toDiscoveredPerson));
 
   const { data, error } = await supabase.rpc('discover_commuters', {
     requesting_user: userId,
@@ -69,7 +69,7 @@ export interface DatingProspect {
 
 /** Dating Lobby pool — completely separate from discoverCommuters, only ever includes opted-in users (brief §32). */
 export async function discoverDatingLobby(userId: string, page = 0): Promise<ServiceResult<DatingProspect[]>> {
-  if (!HAS_SUPABASE_CONFIG) return ok([]);
+  if (shouldUseLocalData()) return ok([]);
 
   const { data, error } = await supabase.rpc('discover_dating_lobby', {
     requesting_user: userId,

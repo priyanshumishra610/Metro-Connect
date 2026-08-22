@@ -28,7 +28,7 @@ export default function EditProfile() {
 
   const onSave = async () => {
     if (isDemoMode || !userId) {
-      setError('Editing needs a real account — connect Supabase to save changes.');
+      setError('A permanent profile needs an account.');
       return;
     }
     setSaving(true);

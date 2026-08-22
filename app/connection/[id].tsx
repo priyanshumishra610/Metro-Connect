@@ -10,7 +10,7 @@ import { space } from '@/constants/spacing';
 import { useAuth } from '@/hooks/useAuth';
 import { respondToConnection } from '@/services/connections';
 import { supabase } from '@/lib/supabase';
-import { HAS_SUPABASE_CONFIG } from '@/config/env';
+import { shouldUseLocalData } from '@/lib/dataMode';
 import type { Connection, Profile } from '@/types/database';
 
 export default function ConnectionDeepLink() {
@@ -24,7 +24,7 @@ export default function ConnectionDeepLink() {
   const [responding, setResponding] = useState(false);
 
   useEffect(() => {
-    if (!id || !HAS_SUPABASE_CONFIG || !userId) {
+    if (!id || shouldUseLocalData() || !userId) {
       setLoading(false);
       return;
     }

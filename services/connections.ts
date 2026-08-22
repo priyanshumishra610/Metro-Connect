@@ -1,4 +1,4 @@
-import { HAS_SUPABASE_CONFIG } from '@/config/env';
+import { shouldUseLocalData } from '@/lib/dataMode';
 import { supabase } from '@/lib/supabase';
 import { track } from '@/services/analytics';
 import type { Connection, ConnectionStatus, Profile } from '@/types/database';
@@ -9,7 +9,7 @@ export interface ConnectionWithProfile extends Connection {
 }
 
 export async function requestConnection(requesterId: string, addresseeId: string): Promise<ServiceResult<Connection>> {
-  if (!HAS_SUPABASE_CONFIG) return fail('not_configured');
+  if (shouldUseLocalData()) return fail('guest_blocked', 'Create an account to connect with people on your route.');
 
   const { data, error } = await supabase
     .from('connections')
@@ -26,7 +26,7 @@ export async function respondToConnection(
   connectionId: string,
   status: Extract<ConnectionStatus, 'accepted' | 'declined'>
 ): Promise<ServiceResult<Connection>> {
-  if (!HAS_SUPABASE_CONFIG) return fail('not_configured');
+  if (shouldUseLocalData()) return fail('guest_blocked');
 
   const { data, error } = await supabase
     .from('connections')
@@ -42,21 +42,21 @@ export async function respondToConnection(
 
 /** The DB trigger that flips a connection to "accepted" also creates its conversation in the same transaction — this looks it up right after, so the UI can jump straight there (the "IT'S A CONNECTION." celebration's CTA). */
 export async function getConversationIdForConnection(connectionId: string): Promise<ServiceResult<string | null>> {
-  if (!HAS_SUPABASE_CONFIG) return ok(null);
+  if (shouldUseLocalData()) return ok(null);
   const { data, error } = await supabase.from('conversations').select('id').eq('connection_id', connectionId).maybeSingle();
   if (error) return fail(fromSupabaseError(error).kind, error.message);
   return ok(data?.id ?? null);
 }
 
 export async function withdrawConnection(connectionId: string): Promise<ServiceResult<null>> {
-  if (!HAS_SUPABASE_CONFIG) return fail('not_configured');
+  if (shouldUseLocalData()) return fail('guest_blocked');
   const { error } = await supabase.from('connections').delete().eq('id', connectionId);
   if (error) return fail(fromSupabaseError(error).kind, error.message);
   return ok(null);
 }
 
 async function listConnectionsByStatus(userId: string, status: ConnectionStatus): Promise<ServiceResult<ConnectionWithProfile[]>> {
-  if (!HAS_SUPABASE_CONFIG) return ok([]);
+  if (shouldUseLocalData()) return ok([]);
 
   const { data, error } = await supabase
     .from('connections')
@@ -79,7 +79,7 @@ async function listConnectionsByStatus(userId: string, status: ConnectionStatus)
 export const listAcceptedConnections = (userId: string) => listConnectionsByStatus(userId, 'accepted');
 
 export async function listIncomingRequests(userId: string): Promise<ServiceResult<ConnectionWithProfile[]>> {
-  if (!HAS_SUPABASE_CONFIG) return ok([]);
+  if (shouldUseLocalData()) return ok([]);
   const { data, error } = await supabase
     .from('connections')
     .select('*, requester:profiles!connections_requester_id_fkey(*)')

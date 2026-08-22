@@ -11,7 +11,8 @@ import { Text } from '@/components/ui/Text';
 import { VerificationBadge } from '@/components/ui/VerificationBadge';
 import { colors } from '@/constants/colors';
 import { space } from '@/constants/spacing';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useGuestGate } from '@/hooks/useAuth';
+import { track } from '@/services/analytics';
 import { blockUser } from '@/services/blocks';
 import { getPrimaryCommuteWithStations, type CommuteWithStations } from '@/services/commute';
 import { requestConnection } from '@/services/connections';
@@ -24,7 +25,8 @@ import { interestCatalog } from '@/constants/interests';
 export default function PublicProfile() {
   const { userId: targetId } = useLocalSearchParams<{ userId: string }>();
   const router = useRouter();
-  const { userId: myId } = useAuth();
+  const { userId: myId, isGuest } = useAuth();
+  const { guard } = useGuestGate();
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [commute, setCommute] = useState<CommuteWithStations | null>(null);
@@ -35,6 +37,7 @@ export default function PublicProfile() {
   useEffect(() => {
     if (!targetId || !myId) return;
     setLoading(true);
+    if (isGuest) track('guest_profile_viewed');
 
     Promise.all([
       getProfile(targetId),
@@ -53,6 +56,7 @@ export default function PublicProfile() {
 
   const onConnect = async () => {
     if (!myId || !targetId) return;
+    if (!guard('connection')) return;
     const result = await requestConnection(myId, targetId);
     if (!result.error) setRequested(true);
   };

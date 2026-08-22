@@ -1,4 +1,4 @@
-import { HAS_SUPABASE_CONFIG } from '@/config/env';
+import { shouldUseLocalData } from '@/lib/dataMode';
 import { supabase } from '@/lib/supabase';
 import { track } from '@/services/analytics';
 import type { ReferralEventType } from '@/types/database';
@@ -10,7 +10,7 @@ function generateCode(userId: string): string {
 }
 
 export async function getOrCreateReferralCode(userId: string): Promise<ServiceResult<string>> {
-  if (!HAS_SUPABASE_CONFIG) return ok('DEMOCODE');
+  if (shouldUseLocalData()) return ok('GUESTCODE');
 
   const { data: existing } = await supabase.from('referrals').select('code').eq('referrer_id', userId).maybeSingle();
   if (existing) return ok(existing.code);
@@ -35,7 +35,7 @@ export function buildReferralMessage(code: string): string {
 
 /** Fire-and-forget funnel tracking (brief §44) — never blocks the UI on failure. */
 export async function recordReferralEvent(code: string, eventType: ReferralEventType, referredUserId?: string): Promise<void> {
-  if (!HAS_SUPABASE_CONFIG || !code) return;
+  if (shouldUseLocalData() || !code) return;
   await supabase.rpc('record_referral_event', {
     referral_code: code,
     event_type_in: eventType,

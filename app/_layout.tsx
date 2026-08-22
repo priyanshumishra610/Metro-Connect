@@ -18,25 +18,32 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-// Ensures the in-app browser sheet used by Google OAuth (services/auth.ts)
-// reliably closes itself after redirecting back, instead of lingering.
 WebBrowser.maybeCompleteAuthSession();
 
-import { DemoModeBanner } from '@/components/system/DemoModeBanner';
+import { GuestConversionSheet } from '@/components/auth/GuestConversionSheet';
+import { CriticalUpdateOverlay } from '@/components/system/CriticalUpdateOverlay';
+import { GuestModeBadge } from '@/components/system/GuestModeBadge';
 import { colors } from '@/constants/colors';
 import { AdManager } from '@/services/ads';
+import { track } from '@/services/analytics';
 import { recordReferralEvent } from '@/services/referrals';
+import { checkForAppUpdate, type UpdateState } from '@/services/updates';
 import { useAuthStore } from '@/store/authStore';
 
-SplashScreen.preventAutoHideAsync().catch(() => {});
+SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function RootLayout() {
   const bootstrap = useAuthStore((s) => s.bootstrap);
   const authStatus = useAuthStore((s) => s.status);
+  const [updateState, setUpdateState] = useState<UpdateState>({
+    status: 'idle',
+    isCritical: false,
+    error: null,
+  });
 
   const [fontsLoaded] = useFonts({
     Fraunces_500Medium,
@@ -52,7 +59,7 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    bootstrap();
+    bootstrap().then(() => track('app_open'));
     AdManager.initialize();
   }, [bootstrap]);
 
@@ -67,7 +74,12 @@ export default function RootLayout() {
     return () => subscription.remove();
   }, []);
 
-  const ready = fontsLoaded && authStatus !== 'loading';
+  const ready = fontsLoaded && authStatus !== 'LOADING' && authStatus !== 'UNKNOWN';
+
+  useEffect(() => {
+    if (!ready) return;
+    checkForAppUpdate().then(setUpdateState);
+  }, [ready]);
 
   const onLayoutRootView = useCallback(async () => {
     if (ready) await SplashScreen.hideAsync();
@@ -76,12 +88,13 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.bg }} onLayout={onLayoutRootView}>
       <SafeAreaProvider>
         <StatusBar style="dark" />
-        <DemoModeBanner />
+        <GuestModeBadge />
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
           <Stack.Screen name="index" />
+          <Stack.Screen name="auth-callback" />
           <Stack.Screen name="(onboarding)" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
@@ -93,6 +106,8 @@ export default function RootLayout() {
           <Stack.Screen name="dating-lobby" options={{ presentation: 'card' }} />
           <Stack.Screen name="settings" options={{ presentation: 'card' }} />
         </Stack>
+        <GuestConversionSheet />
+        <CriticalUpdateOverlay visible={updateState.status === 'ready' && updateState.isCritical} />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
