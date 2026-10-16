@@ -2,3 +2,4 @@ UI refinements and component improvements
 API integration refinements
 Responsive layout improvements
 Authentication flow refinements
+Dashboard performance improvements
