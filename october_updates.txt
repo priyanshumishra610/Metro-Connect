@@ -4,3 +4,4 @@ Responsive layout improvements
 Authentication flow refinements
 Dashboard performance improvements
 Booking interface refinements
+Error handling improvements
