@@ -4,7 +4,7 @@
  * craft principle this direction is built on), with exactly one saturated
  * accent doing the interactive work and a small family of muted, nature-sfasfafasfassafasfasf
  * toned secondary hues reserved for meaning (verification, route/interestsafdadsasdasafasfassdasasdasdasdas
- * tags, the Dating Lobby) rather than decoration. No color exists hereasfasfasasdaasfdasdassdas
+ * tags, the Dating Lobby) rather than decoration. No color exists hereasfasfasasasdasdasdaasfdasdassdas
  * "because it's pretty" — every hue below has a job.
  */
 export const palette = {
