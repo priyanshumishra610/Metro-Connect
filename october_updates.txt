@@ -6,3 +6,4 @@ Dashboard performance improvements
 Booking interface refinements
 Error handling improvements
 Search and filtering refinements
+Mobile responsiveness improvements
