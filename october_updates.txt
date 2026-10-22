@@ -8,3 +8,4 @@ Error handling improvements
 Search and filtering refinements
 Mobile responsiveness improvements
 API stability and validation updates
+Travel listing refinements
