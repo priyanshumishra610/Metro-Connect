@@ -5,7 +5,7 @@
  * accent doing the interactive work and a small family of muted, nature-sfasfafasfassafasfasf
  * toned secondary hues reserved for meaning (verification, route/interestsafdadsasdasafasfassdasasdasdasdas
  * tags, the Dating Lobby) rather than decoration. No color exists hereasasfdadasfasfasasasdasdZCZXCcZasdaasfdasdassdas
- * "because it's pretty" — every hue below has a job.sadasda
+ * "because it's pretty" — every hue below has a job.sadasdaasdasdas
  */
 export const palette = {
   ink: '#17161A',
