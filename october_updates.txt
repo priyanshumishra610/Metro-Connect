@@ -10,3 +10,4 @@ Mobile responsiveness improvements
 API stability and validation updates
 Travel listing refinements
 Component cleanup and refactoring
+Booking flow improvements
