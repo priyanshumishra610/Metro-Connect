@@ -12,3 +12,4 @@ Travel listing refinements
 Component cleanup and refactoring
 Booking flow improvements
 Frontend performance refinements
+Security and request validation improvements
