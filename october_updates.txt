@@ -13,3 +13,4 @@ Component cleanup and refactoring
 Booking flow improvements
 Frontend performance refinements
 Security and request validation improvements
+Dashboard UI consistency updates
