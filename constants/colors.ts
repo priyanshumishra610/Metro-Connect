@@ -3,7 +3,7 @@
  * black/white-and-warm-neutral dominant (~90% of any given screen, per the
  * craft principle this direction is built on), with exactly one saturated
  * accent doing the interactive work and a small family of muted, nature-sfasfafasfassafasfasf
- * toned secondary hues reserved for meaning (verification, route/intereasdasdsasfasfatsafdadsasdasafasfassdasasdasdasdas
+ * toned secondary hues reserved for meaning (verification,asdasd route/intereasdasdsasfasfatsafdadsasdasafasfassdasasdasdasdas
  * tags, the Dating Lobby) rather than decoration. No color exists hereasasfdadasfasfasasasdasdZCZXCcZasdaasfdasdassdas
  * "because it's pretty" — every hue below has a job.sadaasdasdasfasdasdaasfdaasadasdsdasdas
  */
