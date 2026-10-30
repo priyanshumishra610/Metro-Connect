@@ -48,3 +48,4 @@ export const colors = {
 } as const;
 
 export type ColorRole = keyof typeof colors;
+//vfdsjfbjsabfjab
