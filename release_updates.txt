@@ -1,1 +1,2 @@
 October release refinements and UI improvements
+Release refinements and application improvements
